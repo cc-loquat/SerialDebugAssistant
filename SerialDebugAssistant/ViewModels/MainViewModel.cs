@@ -13,6 +13,7 @@ namespace SerialDebugAssistant.ViewModels;
 public partial class MainViewModel : ViewModelBase
 {
     private readonly ISerialService _serial;
+    private readonly LogService _logService = new(new LogSettings { AutoSave = true });
     private readonly ObservableCollection<string> _availablePorts = new();
 
     [ObservableProperty] private string _selectedPort = "COM1";
@@ -115,8 +116,16 @@ public partial class MainViewModel : ViewModelBase
         var text = ReceiveAsHex
             ? HexConverter.BytesToHexString(e.Data)
             : HexConverter.BytesToAscii(e.Data);
-        var line = $"[RX {e.Timestamp:HH:mm:ss.fff}] {text}\n";
+        var ts = e.Timestamp;
+        var line = $"[RX {ts:HH:mm:ss.fff}] {text}\n";
         System.Windows.Application.Current?.Dispatcher.Invoke(() => ReceivedText += line);
+        _ = _logService.AppendAsync(new ReceivedData
+        {
+            Timestamp = ts,
+            Direction = DataDirection.Received,
+            RawBytes = e.Data,
+            DisplayText = text
+        });
     }
 
     private void OnErrorOccurred(object? sender, SerialErrorEventArgs e)
