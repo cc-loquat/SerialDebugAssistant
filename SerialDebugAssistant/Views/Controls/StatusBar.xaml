@@ -26,8 +26,15 @@
                    Foreground="White" VerticalAlignment="Center" Margin="8,0,0,0"/>
         <TextBlock Grid.Column="2" Text="{Binding SelectedPort, StringFormat=' {0}'}"
                    Foreground="White" VerticalAlignment="Center" Margin="8,0"/>
-        <TextBlock Grid.Column="3" Text="{Binding BaudRate, StringFormat=' {0}-8-N-1'}"
-                   Foreground="White" VerticalAlignment="Center" Margin="8,0"/>
+        <TextBlock Grid.Column="3" VerticalAlignment="Center" Margin="8,0" Foreground="White">
+            <Run Text="{Binding BaudRate}"/>
+            <Run Text="-"/>
+            <Run Text="{Binding DataBits}"/>
+            <Run Text="-"/>
+            <Run Text="{Binding Parity}"/>
+            <Run Text="-"/>
+            <Run Text="{Binding StopBits}"/>
+        </TextBlock>
         <TextBlock Grid.Column="4" VerticalAlignment="Center" Margin="8,0">
             <Run Text="RX:" Foreground="White"/>
             <Run Text="{Binding RxByteCount}" Foreground="White"/>
