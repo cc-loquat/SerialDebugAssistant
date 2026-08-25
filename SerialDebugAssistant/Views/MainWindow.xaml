@@ -7,7 +7,7 @@
         Background="{DynamicResource MainBgBrush}"
         WindowStartupLocation="CenterScreen">
 
-    <Grid>
+    <Grid Background="{DynamicResource MainBgBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
@@ -17,14 +17,19 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <controls:ActivityBar Grid.Column="0" Width="48"/>
-            <controls:SidebarPanel Grid.Column="1" Width="240"/>
-            <controls:DataDisplayPanel Grid.Column="2"/>
+            <Border Grid.Column="1" Width="1" Background="{DynamicResource BorderBrush}"/>
+            <controls:SidebarPanel Grid.Column="2" Width="240"/>
+            <Border Grid.Column="3" Width="1" Background="{DynamicResource BorderBrush}"/>
+            <controls:DataDisplayPanel Grid.Column="4"/>
         </Grid>
 
+        <Border Grid.Row="1" Height="1" Background="{DynamicResource BorderBrush}" VerticalAlignment="Top"/>
         <controls:StatusBar Grid.Row="1"/>
     </Grid>
 </Window>

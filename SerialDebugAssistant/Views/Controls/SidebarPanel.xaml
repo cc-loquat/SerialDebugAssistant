@@ -2,25 +2,29 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="{DynamicResource SidebarBgBrush}">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="10">
-            <TextBlock Text="串口参数" Foreground="{DynamicResource ForegroundBrush}" FontWeight="Bold" Margin="0,0,0,8"/>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Background="{DynamicResource SidebarBgBrush}">
+        <StackPanel Margin="16,12">
+            <TextBlock Text="串口参数" Style="{DynamicResource SectionHeaderStyle}"/>
 
-            <TextBlock Text="端口" Foreground="{DynamicResource ForegroundBrush}"/>
+            <TextBlock Text="端口" Style="{DynamicResource LabelStyle}"/>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <ComboBox Grid.Column="0" x:Name="PortCombo"
+                          Style="{DynamicResource ParameterComboBoxStyle}"
                           ItemsSource="{Binding AvailablePorts}"
                           SelectedItem="{Binding SelectedPort}"/>
-                <Button Grid.Column="1" Content="⟳" Width="24" Margin="2,0,0,0"
+                <Button Grid.Column="1" Content="⟳" Width="28" Margin="4,0,0,0"
+                        Style="{DynamicResource IconButtonStyle}"
                         Command="{Binding RefreshPortsCommand}"/>
             </Grid>
 
-            <TextBlock Text="波特率" Foreground="{DynamicResource ForegroundBrush}" Margin="0,8,0,0"/>
-            <ComboBox x:Name="BaudCombo" Text="{Binding BaudRate, Mode=TwoWay}" IsEditable="True">
+            <TextBlock Text="波特率" Style="{DynamicResource LabelStyle}"/>
+            <ComboBox x:Name="BaudCombo"
+                      Style="{DynamicResource ParameterComboBoxStyle}"
+                      Text="{Binding BaudRate, Mode=TwoWay}" IsEditable="True">
                 <ComboBoxItem>9600</ComboBoxItem>
                 <ComboBoxItem>19200</ComboBoxItem>
                 <ComboBoxItem>38400</ComboBoxItem>
@@ -31,24 +35,30 @@
                 <ComboBoxItem>921600</ComboBoxItem>
             </ComboBox>
 
-            <TextBlock Text="数据位" Foreground="{DynamicResource ForegroundBrush}" Margin="0,8,0,0"/>
-            <ComboBox x:Name="DataCombo" SelectedItem="{Binding DataBits, Mode=TwoWay}">
+            <TextBlock Text="数据位" Style="{DynamicResource LabelStyle}"/>
+            <ComboBox x:Name="DataCombo"
+                      Style="{DynamicResource ParameterComboBoxStyle}"
+                      SelectedItem="{Binding DataBits, Mode=TwoWay}">
                 <ComboBoxItem>5</ComboBoxItem>
                 <ComboBoxItem>6</ComboBoxItem>
                 <ComboBoxItem>7</ComboBoxItem>
                 <ComboBoxItem>8</ComboBoxItem>
             </ComboBox>
 
-            <TextBlock Text="停止位" Foreground="{DynamicResource ForegroundBrush}" Margin="0,8,0,0"/>
-            <ComboBox x:Name="StopCombo" SelectedIndex="0"
+            <TextBlock Text="停止位" Style="{DynamicResource LabelStyle}"/>
+            <ComboBox x:Name="StopCombo"
+                      Style="{DynamicResource ParameterComboBoxStyle}"
+                      SelectedIndex="0"
                       SelectedItem="{Binding StopBits, Mode=TwoWay}">
                 <ComboBoxItem>One</ComboBoxItem>
                 <ComboBoxItem>OnePointFive</ComboBoxItem>
                 <ComboBoxItem>Two</ComboBoxItem>
             </ComboBox>
 
-            <TextBlock Text="校验" Foreground="{DynamicResource ForegroundBrush}" Margin="0,8,0,0"/>
-            <ComboBox x:Name="ParityCombo" SelectedIndex="0"
+            <TextBlock Text="校验" Style="{DynamicResource LabelStyle}"/>
+            <ComboBox x:Name="ParityCombo"
+                      Style="{DynamicResource ParameterComboBoxStyle}"
+                      SelectedIndex="0"
                       SelectedItem="{Binding Parity, Mode=TwoWay}">
                 <ComboBoxItem>None</ComboBoxItem>
                 <ComboBoxItem>Even</ComboBoxItem>
@@ -57,8 +67,10 @@
                 <ComboBoxItem>Space</ComboBoxItem>
             </ComboBox>
 
-            <TextBlock Text="流控" Foreground="{DynamicResource ForegroundBrush}" Margin="0,8,0,0"/>
-            <ComboBox x:Name="FlowCombo" SelectedIndex="0"
+            <TextBlock Text="流控" Style="{DynamicResource LabelStyle}"/>
+            <ComboBox x:Name="FlowCombo"
+                      Style="{DynamicResource ParameterComboBoxStyle}"
+                      SelectedIndex="0"
                       SelectedItem="{Binding Handshake, Mode=TwoWay}">
                 <ComboBoxItem>None</ComboBoxItem>
                 <ComboBoxItem>RequestToSend</ComboBoxItem>
@@ -66,10 +78,12 @@
                 <ComboBoxItem>RequestToSendXOnXOff</ComboBoxItem>
             </ComboBox>
 
-            <Button Content="{Binding ConnectButtonText}" Margin="0,16,0,0"
-                    Height="32" Background="{DynamicResource AccentBrush}"
-                    Foreground="White" Command="{Binding ConnectCommand}"/>
-            <Button Content="清空接收" Margin="0,8,0,0" Height="28"
+            <Button Content="{Binding ConnectButtonText}" Margin="0,18,0,0"
+                    Height="34"
+                    Style="{DynamicResource PrimaryButtonStyle}"
+                    Command="{Binding ConnectCommand}"/>
+            <Button Content="清空接收" Margin="0,8,0,0" Height="30"
+                    Style="{DynamicResource SecondaryButtonStyle}"
                     Command="{Binding ClearReceivedCommand}"/>
         </StackPanel>
     </ScrollViewer>

@@ -4,9 +4,9 @@
              Background="{DynamicResource ActivityBarBgBrush}">
 
     <StackPanel Orientation="Vertical" VerticalAlignment="Top">
-        <Button Style="{DynamicResource ActivityIconButton}" Content="📋" ToolTip="串口参数"/>
-        <Button Style="{DynamicResource ActivityIconButton}" Content="📁" ToolTip="日志"/>
-        <Button Style="{DynamicResource ActivityIconButton}" Content="⚙" ToolTip="设置"/>
-        <Button Style="{DynamicResource ActivityIconButton}" Content="ℹ" ToolTip="关于"/>
+        <Button Style="{DynamicResource ActivityIconButton}" Content="≡" ToolTip="串口参数" FontSize="20"/>
+        <Button Style="{DynamicResource ActivityIconButton}" Content="⋞" ToolTip="日志" FontSize="18"/>
+        <Button Style="{DynamicResource ActivityIconButton}" Content="⚙" ToolTip="设置" FontSize="20"/>
+        <Button Style="{DynamicResource ActivityIconButton}" Content="i" ToolTip="关于" FontSize="18" FontWeight="Bold"/>
     </StackPanel>
 </UserControl>
