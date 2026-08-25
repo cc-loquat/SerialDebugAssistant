@@ -9,7 +9,7 @@ public class UpdateService : IUpdateService
 
     public UpdateService()
     {
-        _mgr = new UpdateManager("https://github.com/2824418868-cpu/SerialDebugAssistant/releases/latest");
+        _mgr = new UpdateManager("https://github.com/cc-loquat/SerialDebugAssistant/releases/latest/download/");
     }
 
     public async Task<UpdateInfo?> CheckForUpdatesAsync()

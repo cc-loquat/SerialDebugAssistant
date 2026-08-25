@@ -1,27 +1,19 @@
-# Build outputs
+# Build output
+publish/
 bin/
 obj/
-Output/
 
 # IDE
 .vs/
-.vscode/
 *.user
 *.suo
 
-# Runtime
-*.log
-Logs/
-
 # OS
-Thumbs.db
 .DS_Store
+Thumbs.db
 
-# 本地交接文档（不推 GitHub）
-HANDOVER.md
-
-# Claude Code 配置（不推 GitHub）
-.claude/
-
-# 设计与实施计划文档（本地保留，不推 GitHub）
-docs/
+# Release artifacts
+Releases/
+*.zip
+*.nupkg
+Setup.exe
