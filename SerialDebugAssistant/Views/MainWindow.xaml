@@ -1,0 +1,30 @@
+<Window x:Class="SerialDebugAssistant.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:SerialDebugAssistant.ViewModels"
+        xmlns:controls="clr-namespace:SerialDebugAssistant.Views.Controls"
+        Title="串口调试助手 v0.1" Height="600" Width="900"
+        Background="{DynamicResource MainBgBrush}"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <controls:ActivityBar Grid.Column="0" Width="48"/>
+            <controls:SidebarPanel Grid.Column="1" Width="240"/>
+            <controls:DataDisplayPanel Grid.Column="2"/>
+        </Grid>
+
+        <controls:StatusBar Grid.Row="1"/>
+    </Grid>
+</Window>

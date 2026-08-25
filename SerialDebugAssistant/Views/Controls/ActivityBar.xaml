@@ -1,0 +1,12 @@
+<UserControl x:Class="SerialDebugAssistant.Views.Controls.ActivityBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource ActivityBarBgBrush}">
+
+    <StackPanel Orientation="Vertical" VerticalAlignment="Top">
+        <Button Style="{DynamicResource ActivityIconButton}" Content="📋" ToolTip="串口参数"/>
+        <Button Style="{DynamicResource ActivityIconButton}" Content="📁" ToolTip="日志"/>
+        <Button Style="{DynamicResource ActivityIconButton}" Content="⚙" ToolTip="设置"/>
+        <Button Style="{DynamicResource ActivityIconButton}" Content="ℹ" ToolTip="关于"/>
+    </StackPanel>
+</UserControl>
