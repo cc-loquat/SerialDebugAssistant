@@ -1,0 +1,128 @@
+using System;
+using System.Collections.ObjectModel;
+using System.IO.Ports;
+using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using SerialDebugAssistant.Models;
+using SerialDebugAssistant.Services;
+using SerialDebugAssistant.Utils;
+
+namespace SerialDebugAssistant.ViewModels;
+
+public partial class MainViewModel : ViewModelBase
+{
+    private readonly ISerialService _serial;
+    private readonly ObservableCollection<string> _availablePorts = new();
+
+    [ObservableProperty] private string _selectedPort = "COM1";
+    [ObservableProperty] private int _baudRate = 115200;
+    [ObservableProperty] private int _dataBits = 8;
+    [ObservableProperty] private StopBits _stopBits = StopBits.One;
+    [ObservableProperty] private Parity _parity = Parity.None;
+    [ObservableProperty] private Handshake _handshake = Handshake.None;
+    [ObservableProperty] private bool _isConnected;
+    [ObservableProperty] private string _receivedText = string.Empty;
+    [ObservableProperty] private string _sendText = string.Empty;
+    [ObservableProperty] private bool _sendAsHex;
+    [ObservableProperty] private bool _receiveAsHex;
+    [ObservableProperty] private long _rxByteCount;
+    [ObservableProperty] private long _txByteCount;
+    [ObservableProperty] private string _statusMessage = "就绪";
+
+    public ObservableCollection<string> AvailablePorts => _availablePorts;
+
+    public string ConnectButtonText => IsConnected ? "关闭" : "打开";
+
+    public MainViewModel(ISerialService serial)
+    {
+        _serial = serial;
+        _serial.DataReceived += OnDataReceived;
+        _serial.ErrorOccurred += OnErrorOccurred;
+        _serial.ConnectionChanged += OnConnectionChanged;
+        RefreshPorts();
+    }
+
+    [RelayCommand]
+    public void RefreshPorts()
+    {
+        _availablePorts.Clear();
+        foreach (var p in _serial.GetAvailablePorts())
+            _availablePorts.Add(p);
+        if (_availablePorts.Count > 0 && string.IsNullOrEmpty(SelectedPort))
+            SelectedPort = _availablePorts[0];
+    }
+
+    [RelayCommand]
+    public async Task ConnectAsync()
+    {
+        if (IsConnected)
+        {
+            await _serial.CloseAsync();
+        }
+        else
+        {
+            if (!SerialPortConfig.IsValidBaudRate(BaudRate) ||
+                !SerialPortConfig.IsValidDataBits(DataBits))
+            {
+                StatusMessage = "参数非法";
+                return;
+            }
+            var cfg = new SerialPortConfig
+            {
+                PortName = SelectedPort,
+                BaudRate = BaudRate,
+                DataBits = DataBits,
+                StopBits = StopBits,
+                Parity = Parity,
+                Handshake = Handshake
+            };
+            var ok = await _serial.OpenAsync(cfg);
+            IsConnected = ok;
+            if (!ok) StatusMessage = "打开失败";
+        }
+    }
+
+    [RelayCommand]
+    public async Task SendAsync()
+    {
+        if (!IsConnected) return;
+        var data = SendAsHex
+            ? HexConverter.HexStringToBytes(SendText)
+            : HexConverter.AsciiToBytes(SendText);
+        if (data.Length == 0) return;
+        await _serial.SendAsync(data);
+        TxByteCount += data.Length;
+        ReceivedText += $"[TX] {HexConverter.BytesToHexString(data)}\n";
+    }
+
+    [RelayCommand]
+    public void ClearReceived()
+    {
+        ReceivedText = string.Empty;
+    }
+
+    private void OnDataReceived(object? sender, DataReceivedEventArgs e)
+    {
+        RxByteCount += e.Data.Length;
+        var text = ReceiveAsHex
+            ? HexConverter.BytesToHexString(e.Data)
+            : HexConverter.BytesToAscii(e.Data);
+        var line = $"[RX {e.Timestamp:HH:mm:ss.fff}] {text}\n";
+        System.Windows.Application.Current?.Dispatcher.Invoke(() => ReceivedText += line);
+    }
+
+    private void OnErrorOccurred(object? sender, SerialErrorEventArgs e)
+    {
+        StatusMessage = e.Message;
+    }
+
+    private void OnConnectionChanged(object? sender, EventArgs e)
+    {
+        IsConnected = _serial.IsOpen;
+        OnPropertyChanged(nameof(ConnectButtonText));
+        StatusMessage = IsConnected ? $"已连接 {SelectedPort}" : "已断开";
+    }
+
+    partial void OnIsConnectedChanged(bool value) => OnPropertyChanged(nameof(ConnectButtonText));
+}
