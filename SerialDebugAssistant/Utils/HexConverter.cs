@@ -29,7 +29,8 @@ public static class HexConverter
 
     public static string BytesToHexString(byte[] bytes)
     {
-        if (bytes is null || bytes.Length == 0) return string.Empty;
+        if (bytes is null) throw new ArgumentNullException(nameof(bytes));
+        if (bytes.Length == 0) return string.Empty;
         var sb = new StringBuilder(bytes.Length * 3);
         for (int i = 0; i < bytes.Length; i++)
         {
@@ -41,13 +42,14 @@ public static class HexConverter
 
     public static byte[] AsciiToBytes(string ascii)
     {
-        if (ascii is null) return Array.Empty<byte>();
+        if (ascii is null) throw new ArgumentNullException(nameof(ascii));
         return Encoding.UTF8.GetBytes(ascii);
     }
 
     public static string BytesToAscii(byte[] bytes)
     {
-        if (bytes is null || bytes.Length == 0) return string.Empty;
+        if (bytes is null) throw new ArgumentNullException(nameof(bytes));
+        if (bytes.Length == 0) return string.Empty;
         return Encoding.UTF8.GetString(bytes);
     }
 }

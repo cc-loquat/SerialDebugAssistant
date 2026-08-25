@@ -48,4 +48,20 @@ public class HexConverterTests
     {
         Assert.Equal(expected, HexConverter.BytesToAscii(input));
     }
+
+    [Fact]
+    public void HexStringToBytes_Null_ThrowsArgumentNullException()
+        => Assert.Throws<ArgumentNullException>(() => HexConverter.HexStringToBytes(null!));
+
+    [Fact]
+    public void AsciiToBytes_Null_ThrowsArgumentNullException()
+        => Assert.Throws<ArgumentNullException>(() => HexConverter.AsciiToBytes(null!));
+
+    [Fact]
+    public void BytesToHexString_Null_ThrowsArgumentNullException()
+        => Assert.Throws<ArgumentNullException>(() => HexConverter.BytesToHexString(null!));
+
+    [Fact]
+    public void BytesToAscii_Null_ThrowsArgumentNullException()
+        => Assert.Throws<ArgumentNullException>(() => HexConverter.BytesToAscii(null!));
 }
