@@ -1,5 +1,6 @@
 using System;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using SerialDebugAssistant.Services;
 using SerialDebugAssistant.ViewModels;
 
@@ -11,6 +12,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         DataContext = new MainViewModel(new SerialService());
+        Icon = BitmapFrame.Create(new Uri("pack://application:,,,/app.ico"));
     }
 
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
