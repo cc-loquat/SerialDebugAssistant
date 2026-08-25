@@ -26,6 +26,13 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty] private string _sendText = string.Empty;
     [ObservableProperty] private bool _sendAsHex;
     [ObservableProperty] private bool _receiveAsHex;
+
+    public bool ReceiveAsAscii { get => !ReceiveAsHex; set => ReceiveAsHex = !value; }
+    public bool SendAsAscii { get => !SendAsHex; set => SendAsHex = !value; }
+
+    partial void OnReceiveAsHexChanged(bool value) => OnPropertyChanged(nameof(ReceiveAsAscii));
+    partial void OnSendAsHexChanged(bool value) => OnPropertyChanged(nameof(SendAsAscii));
+
     [ObservableProperty] private long _rxByteCount;
     [ObservableProperty] private long _txByteCount;
     [ObservableProperty] private string _statusMessage = "就绪";
