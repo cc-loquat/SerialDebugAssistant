@@ -16,3 +16,12 @@ Logs/
 # OS
 Thumbs.db
 .DS_Store
+
+# 本地交接文档（不推 GitHub）
+HANDOVER.md
+
+# Claude Code 配置（不推 GitHub）
+.claude/
+
+# 设计与实施计划文档（本地保留，不推 GitHub）
+docs/
