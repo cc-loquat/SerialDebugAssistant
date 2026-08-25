@@ -1,0 +1,8 @@
+<Application x:Class="SerialDebugAssistant.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             ShutdownMode="OnMainWindowShutdown">
+    <Application.Resources>
+        <ResourceDictionary/>
+    </Application.Resources>
+</Application>
