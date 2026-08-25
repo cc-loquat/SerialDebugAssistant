@@ -1,4 +1,76 @@
 <UserControl x:Class="SerialDebugAssistant.Views.Controls.SidebarPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Background="{DynamicResource SidebarBgBrush}"/>
+             Background="{DynamicResource SidebarBgBrush}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="10">
+            <TextBlock Text="串口参数" Foreground="{DynamicResource ForegroundBrush}" FontWeight="Bold" Margin="0,0,0,8"/>
+
+            <TextBlock Text="端口" Foreground="{DynamicResource ForegroundBrush}"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <ComboBox Grid.Column="0" x:Name="PortCombo"
+                          ItemsSource="{Binding AvailablePorts}"
+                          SelectedItem="{Binding SelectedPort}"/>
+                <Button Grid.Column="1" Content="⟳" Width="24" Margin="2,0,0,0"
+                        Command="{Binding RefreshPortsCommand}"/>
+            </Grid>
+
+            <TextBlock Text="波特率" Foreground="{DynamicResource ForegroundBrush}" Margin="0,8,0,0"/>
+            <ComboBox x:Name="BaudCombo" Text="{Binding BaudRate, Mode=TwoWay}" IsEditable="True">
+                <ComboBoxItem>9600</ComboBoxItem>
+                <ComboBoxItem>19200</ComboBoxItem>
+                <ComboBoxItem>38400</ComboBoxItem>
+                <ComboBoxItem>57600</ComboBoxItem>
+                <ComboBoxItem>115200</ComboBoxItem>
+                <ComboBoxItem>230400</ComboBoxItem>
+                <ComboBoxItem>460800</ComboBoxItem>
+                <ComboBoxItem>921600</ComboBoxItem>
+            </ComboBox>
+
+            <TextBlock Text="数据位" Foreground="{DynamicResource ForegroundBrush}" Margin="0,8,0,0"/>
+            <ComboBox x:Name="DataCombo" SelectedItem="{Binding DataBits, Mode=TwoWay}">
+                <ComboBoxItem>5</ComboBoxItem>
+                <ComboBoxItem>6</ComboBoxItem>
+                <ComboBoxItem>7</ComboBoxItem>
+                <ComboBoxItem>8</ComboBoxItem>
+            </ComboBox>
+
+            <TextBlock Text="停止位" Foreground="{DynamicResource ForegroundBrush}" Margin="0,8,0,0"/>
+            <ComboBox x:Name="StopCombo" SelectedIndex="0"
+                      SelectedItem="{Binding StopBits, Mode=TwoWay}">
+                <ComboBoxItem>One</ComboBoxItem>
+                <ComboBoxItem>OnePointFive</ComboBoxItem>
+                <ComboBoxItem>Two</ComboBoxItem>
+            </ComboBox>
+
+            <TextBlock Text="校验" Foreground="{DynamicResource ForegroundBrush}" Margin="0,8,0,0"/>
+            <ComboBox x:Name="ParityCombo" SelectedIndex="0"
+                      SelectedItem="{Binding Parity, Mode=TwoWay}">
+                <ComboBoxItem>None</ComboBoxItem>
+                <ComboBoxItem>Even</ComboBoxItem>
+                <ComboBoxItem>Odd</ComboBoxItem>
+                <ComboBoxItem>Mark</ComboBoxItem>
+                <ComboBoxItem>Space</ComboBoxItem>
+            </ComboBox>
+
+            <TextBlock Text="流控" Foreground="{DynamicResource ForegroundBrush}" Margin="0,8,0,0"/>
+            <ComboBox x:Name="FlowCombo" SelectedIndex="0"
+                      SelectedItem="{Binding Handshake, Mode=TwoWay}">
+                <ComboBoxItem>None</ComboBoxItem>
+                <ComboBoxItem>RequestToSend</ComboBoxItem>
+                <ComboBoxItem>XOnXOff</ComboBoxItem>
+                <ComboBoxItem>RequestToSendXOnXOff</ComboBoxItem>
+            </ComboBox>
+
+            <Button Content="{Binding ConnectButtonText}" Margin="0,16,0,0"
+                    Height="32" Background="{DynamicResource AccentBrush}"
+                    Foreground="White" Command="{Binding ConnectCommand}"/>
+            <Button Content="清空接收" Margin="0,8,0,0" Height="28"
+                    Command="{Binding ClearReceivedCommand}"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
