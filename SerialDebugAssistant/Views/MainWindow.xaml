@@ -3,17 +3,52 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:SerialDebugAssistant.ViewModels"
         xmlns:controls="clr-namespace:SerialDebugAssistant.Views.Controls"
-        Title="串口调试助手 v0.1" Height="600" Width="900"
+        Title="串口调试助手 v0.1" Height="640" Width="960"
+        MinWidth="720" MinHeight="480"
         Background="{DynamicResource MainBgBrush}"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="False"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32" CornerRadius="0" GlassFrameThickness="0" ResizeBorderThickness="6" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
 
     <Grid Background="{DynamicResource MainBgBrush}">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0">
+        <!-- 自定义标题栏 -->
+        <Grid Grid.Row="0" Height="32" Background="{DynamicResource TitleBarBgBrush}" x:Name="TitleBar">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <!-- 图标 -->
+            <Path Grid.Column="0" Data="M3,12 Q8,2 13,12 Q18,22 23,12" Stroke="{DynamicResource ForegroundBrush}" 
+                  StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform"
+                  Margin="12,0,6,0" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+            <TextBlock Grid.Column="1" Text="串口调试助手 v0.1" VerticalAlignment="Center" Margin="0,0,0,0"
+                       Foreground="{DynamicResource ForegroundBrush}" FontSize="12"/>
+            <StackPanel Grid.Column="3" Orientation="Horizontal">
+                <Button Style="{DynamicResource TitleBarButtonStyle}" Content="_" Click="Minimize_Click" ToolTip="最小化"
+                    WindowChrome.IsHitTestVisibleInChrome="True"/>
+                <Button Style="{DynamicResource TitleBarButtonStyle}" Content="□" Click="Maximize_Click" ToolTip="最大化/还原" x:Name="MaxBtn"
+                    WindowChrome.IsHitTestVisibleInChrome="True"/>
+                <Button Style="{DynamicResource TitleBarButtonStyle}" Content="✕" Click="Close_Click" ToolTip="关闭"
+                    WindowChrome.IsHitTestVisibleInChrome="True"/>
+            </StackPanel>
+        </Grid>
+        <Border Grid.Row="0" VerticalAlignment="Bottom" Height="1" Background="{DynamicResource BorderBrush}" Grid.RowSpan="1"/>
+
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
@@ -29,7 +64,7 @@
             <controls:DataDisplayPanel Grid.Column="4"/>
         </Grid>
 
-        <Border Grid.Row="1" Height="1" Background="{DynamicResource BorderBrush}" VerticalAlignment="Top"/>
-        <controls:StatusBar Grid.Row="1"/>
+        <Border Grid.Row="2" Height="1" Background="{DynamicResource BorderBrush}" VerticalAlignment="Top"/>
+        <controls:StatusBar Grid.Row="2"/>
     </Grid>
 </Window>

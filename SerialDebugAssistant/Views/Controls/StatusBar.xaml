@@ -12,7 +12,8 @@
         </Grid.ColumnDefinitions>
 
         <!-- 状态指示灯：连接绿，断开灰 -->
-        <Ellipse Grid.Column="0" Width="8" Height="8" Margin="12,0">
+        <Ellipse Grid.Column="0" Width="10" Height="10" Margin="12,0,0,0"
+                 VerticalAlignment="Center">
             <Ellipse.Style>
                 <Style TargetType="Ellipse">
                     <Setter Property="Fill" Value="#6E7681"/>
@@ -29,26 +30,23 @@
                    Foreground="{DynamicResource ForegroundBrush}"
                    VerticalAlignment="Center" Margin="8,0,0,0" FontSize="12"/>
 
-        <TextBlock Grid.Column="2" Text="{Binding SelectedPort, StringFormat=' {0}'}"
-                   Foreground="{DynamicResource ForegroundBrush}"
-                   VerticalAlignment="Center" Margin="12,0" FontSize="12"/>
-
-        <TextBlock Grid.Column="3" VerticalAlignment="Center" Margin="0,0,12,0"
-                   Foreground="{DynamicResource ForegroundBrush}" FontSize="12">
-            <Run Text="{Binding BaudRate}"/>
-            <Run Text="-"/>
-            <Run Text="{Binding DataBits}"/>
-            <Run Text="-"/>
-            <Run Text="{Binding Parity}"/>
-            <Run Text="-"/>
-            <Run Text="{Binding StopBits}"/>
+        <TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="0,0,12,0"
+                   Foreground="{DynamicResource ForegroundInactiveBrush}" FontSize="12">
+            <Run Text="{Binding SelectedPort}"/>
         </TextBlock>
 
-        <TextBlock Grid.Column="4" VerticalAlignment="Center" Margin="0,0,12,0"
-                   Foreground="{DynamicResource ForegroundBrush}" FontSize="12">
-            <Run Text="RX:"/><Run Text=" "/><Run Text="{Binding RxByteCount}"/>
-            <Run Text="   "/>
-            <Run Text="TX:"/><Run Text=" "/><Run Text="{Binding TxByteCount}"/>
+        <Border Grid.Column="3" Width="1" Height="16"
+                Background="{DynamicResource BorderBrush}" VerticalAlignment="Center"/>
+
+        <TextBlock Grid.Column="4" VerticalAlignment="Center" Margin="12,0,12,0"
+                   Foreground="{DynamicResource ForegroundInactiveBrush}" FontSize="12">
+            <Run Foreground="{DynamicResource RxTextBrush}" Text="RX"/>
+            <Run Text=":"/>
+            <Run Text="{Binding RxByteCount}"/>
+            <Run Text="  "/>
+            <Run Foreground="{DynamicResource TxTextBrush}" Text="TX"/>
+            <Run Text=":"/>
+            <Run Text="{Binding TxByteCount}"/>
         </TextBlock>
     </Grid>
 </UserControl>

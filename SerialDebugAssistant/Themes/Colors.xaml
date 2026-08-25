@@ -12,8 +12,8 @@
     <Color x:Key="StatusBarConnectedColor">#0078D4</Color>
     <Color x:Key="StatusBarDisconnectedColor">#181818</Color>
 
-    <!-- 蓝色 accent 只用于焦点边框、活动栏 active border、tab 顶部线 -->
-    <Color x:Key="AccentColor">#0078D4</Color>
+    <!-- 蓝色 accent 调低饱和度，更柔和的青色蓝 -->
+    <Color x:Key="AccentColor">#3C88B5</Color>
 
     <Color x:Key="ForegroundColor">#CCCCCC</Color>
     <Color x:Key="ForegroundInactiveColor">#868686</Color>
@@ -45,4 +45,32 @@
 
     <SolidColorBrush x:Key="InputBgBrush" Color="{StaticResource InputBgColor}"/>
     <SolidColorBrush x:Key="InputBorderNormalBrush" Color="{StaticResource InputBorderNormalColor}"/>
+
+    <!-- 滚动条颜色 -->
+    <Color x:Key="ScrollbarThumbColor">#424242</Color>
+    <Color x:Key="ScrollbarThumbHoverColor">#555555</Color>
+    <Color x:Key="ScrollbarTrackColor">#1E1E1E</Color>
+
+    <SolidColorBrush x:Key="ScrollbarThumbBrush" Color="{StaticResource ScrollbarThumbColor}"/>
+    <SolidColorBrush x:Key="ScrollbarThumbHoverBrush" Color="{StaticResource ScrollbarThumbHoverColor}"/>
+    <SolidColorBrush x:Key="ScrollbarTrackBrush" Color="{StaticResource ScrollbarTrackColor}"/>
+
+    <!-- 下拉菜单颜色 -->
+    <Color x:Key="DropdownBgColor">#252526</Color>
+    <Color x:Key="DropdownBorderColor">#3C3C3C</Color>
+    <Color x:Key="DropdownHoverColor">#2A2D2E</Color>
+    <Color x:Key="DropdownSelectedColor">#094771</Color>
+
+    <SolidColorBrush x:Key="DropdownBgBrush" Color="{StaticResource DropdownBgColor}"/>
+    <SolidColorBrush x:Key="DropdownBorderBrush" Color="{StaticResource DropdownBorderColor}"/>
+    <SolidColorBrush x:Key="DropdownHoverBrush" Color="{StaticResource DropdownHoverColor}"/>
+    <SolidColorBrush x:Key="DropdownSelectedBrush" Color="{StaticResource DropdownSelectedColor}"/>
+
+    <!-- 文本选择颜色 -->
+    <Color x:Key="SelectionColor">#264F78</Color>
+    <SolidColorBrush x:Key="SelectionBrush" Color="{StaticResource SelectionColor}"/>
+
+    <!-- 活动栏图标颜色 -->
+    <Color x:Key="ActivityIconColor">#868686</Color>
+    <SolidColorBrush x:Key="ActivityIconBrush" Color="{StaticResource ActivityIconColor}"/>
 </ResourceDictionary>

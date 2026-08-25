@@ -4,9 +4,12 @@
              Background="{DynamicResource ActivityBarBgBrush}">
 
     <StackPanel Orientation="Vertical" VerticalAlignment="Top">
-        <Button Style="{DynamicResource ActivityIconButton}" Content="≡" ToolTip="串口参数" FontSize="20"/>
-        <Button Style="{DynamicResource ActivityIconButton}" Content="⋞" ToolTip="日志" FontSize="18"/>
-        <Button Style="{DynamicResource ActivityIconButton}" Content="⚙" ToolTip="设置" FontSize="20"/>
-        <Button Style="{DynamicResource ActivityIconButton}" Content="i" ToolTip="关于" FontSize="18" FontWeight="Bold"/>
+        <!-- 串口参数 - 汉堡菜单 -->
+        <Button Style="{DynamicResource ActivityIconButton}" ToolTip="串口参数">
+            <Path Data="M2,5 L22,5 M2,11 L22,11 M2,17 L22,17"
+                  Stroke="{DynamicResource ActivityIconBrush}" StrokeThickness="1.5"
+                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                  Width="22" Height="18" Stretch="Uniform"/>
+        </Button>
     </StackPanel>
 </UserControl>

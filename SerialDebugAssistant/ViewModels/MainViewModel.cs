@@ -10,7 +10,7 @@ using SerialDebugAssistant.Utils;
 
 namespace SerialDebugAssistant.ViewModels;
 
-public partial class MainViewModel : ViewModelBase
+public partial class MainViewModel : ViewModelBase, IDisposable
 {
     private readonly ISerialService _serial;
     private readonly LogService _logService = new(new LogSettings { AutoSave = true });
@@ -106,6 +106,7 @@ public partial class MainViewModel : ViewModelBase
         await _serial.SendAsync(data);
         TxByteCount += data.Length;
         ReceivedText += $"[TX] {HexConverter.BytesToHexString(data)}\n";
+        SendText = string.Empty;
     }
 
     [RelayCommand]
@@ -169,4 +170,10 @@ public partial class MainViewModel : ViewModelBase
     }
 
     partial void OnIsConnectedChanged(bool value) => OnPropertyChanged(nameof(ConnectButtonText));
+
+    public void Dispose()
+    {
+        _serial?.Dispose();
+        GC.SuppressFinalize(this);
+    }
 }

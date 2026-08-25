@@ -1,8 +1,10 @@
 <UserControl x:Class="SerialDebugAssistant.Views.Controls.SidebarPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              Background="{DynamicResource SidebarBgBrush}">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Background="{DynamicResource SidebarBgBrush}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Background="{DynamicResource SidebarBgBrush}"
+                  Style="{DynamicResource DarkScrollViewerStyle}">
         <StackPanel Margin="16,12">
             <TextBlock Text="串口参数" Style="{DynamicResource SectionHeaderStyle}"/>
 
@@ -39,43 +41,43 @@
             <ComboBox x:Name="DataCombo"
                       Style="{DynamicResource ParameterComboBoxStyle}"
                       SelectedItem="{Binding DataBits, Mode=TwoWay}">
-                <ComboBoxItem>5</ComboBoxItem>
-                <ComboBoxItem>6</ComboBoxItem>
-                <ComboBoxItem>7</ComboBoxItem>
-                <ComboBoxItem>8</ComboBoxItem>
+                <sys:Int32>5</sys:Int32>
+                <sys:Int32>6</sys:Int32>
+                <sys:Int32>7</sys:Int32>
+                <sys:Int32>8</sys:Int32>
             </ComboBox>
 
             <TextBlock Text="停止位" Style="{DynamicResource LabelStyle}"/>
             <ComboBox x:Name="StopCombo"
                       Style="{DynamicResource ParameterComboBoxStyle}"
-                      SelectedIndex="0"
-                      SelectedItem="{Binding StopBits, Mode=TwoWay}">
-                <ComboBoxItem>One</ComboBoxItem>
-                <ComboBoxItem>OnePointFive</ComboBoxItem>
-                <ComboBoxItem>Two</ComboBoxItem>
+                      SelectedValuePath="Tag"
+                      SelectedValue="{Binding StopBits, Mode=TwoWay}">
+                <ComboBoxItem Tag="One">1</ComboBoxItem>
+                <ComboBoxItem Tag="OnePointFive">1.5</ComboBoxItem>
+                <ComboBoxItem Tag="Two">2</ComboBoxItem>
             </ComboBox>
 
             <TextBlock Text="校验" Style="{DynamicResource LabelStyle}"/>
             <ComboBox x:Name="ParityCombo"
                       Style="{DynamicResource ParameterComboBoxStyle}"
-                      SelectedIndex="0"
-                      SelectedItem="{Binding Parity, Mode=TwoWay}">
-                <ComboBoxItem>None</ComboBoxItem>
-                <ComboBoxItem>Even</ComboBoxItem>
-                <ComboBoxItem>Odd</ComboBoxItem>
-                <ComboBoxItem>Mark</ComboBoxItem>
-                <ComboBoxItem>Space</ComboBoxItem>
+                      SelectedValuePath="Tag"
+                      SelectedValue="{Binding Parity, Mode=TwoWay}">
+                <ComboBoxItem Tag="None">无</ComboBoxItem>
+                <ComboBoxItem Tag="Even">偶校验</ComboBoxItem>
+                <ComboBoxItem Tag="Odd">奇校验</ComboBoxItem>
+                <ComboBoxItem Tag="Mark">Mark</ComboBoxItem>
+                <ComboBoxItem Tag="Space">Space</ComboBoxItem>
             </ComboBox>
 
             <TextBlock Text="流控" Style="{DynamicResource LabelStyle}"/>
             <ComboBox x:Name="FlowCombo"
                       Style="{DynamicResource ParameterComboBoxStyle}"
-                      SelectedIndex="0"
-                      SelectedItem="{Binding Handshake, Mode=TwoWay}">
-                <ComboBoxItem>None</ComboBoxItem>
-                <ComboBoxItem>RequestToSend</ComboBoxItem>
-                <ComboBoxItem>XOnXOff</ComboBoxItem>
-                <ComboBoxItem>RequestToSendXOnXOff</ComboBoxItem>
+                      SelectedValuePath="Tag"
+                      SelectedValue="{Binding Handshake, Mode=TwoWay}">
+                <ComboBoxItem Tag="None">无</ComboBoxItem>
+                <ComboBoxItem Tag="RequestToSend">RTS</ComboBoxItem>
+                <ComboBoxItem Tag="XOnXOff">XON/XOFF</ComboBoxItem>
+                <ComboBoxItem Tag="RequestToSendXOnXOff">RTS + XON/XOFF</ComboBoxItem>
             </ComboBox>
 
             <Button Content="{Binding ConnectButtonText}" Margin="0,18,0,0"
