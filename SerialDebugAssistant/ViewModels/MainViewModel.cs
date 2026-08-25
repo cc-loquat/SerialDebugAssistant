@@ -14,6 +14,7 @@ public partial class MainViewModel : ViewModelBase
 {
     private readonly ISerialService _serial;
     private readonly LogService _logService = new(new LogSettings { AutoSave = true });
+    private readonly IUpdateService _updateService = new UpdateService();
     private readonly ObservableCollection<string> _availablePorts = new();
 
     [ObservableProperty] private string _selectedPort = "COM1";
@@ -37,6 +38,8 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty] private long _rxByteCount;
     [ObservableProperty] private long _txByteCount;
     [ObservableProperty] private string _statusMessage = "就绪";
+    [ObservableProperty] private bool _updateAvailable;
+    [ObservableProperty] private string _updateVersion = string.Empty;
 
     public ObservableCollection<string> AvailablePorts => _availablePorts;
 
@@ -49,6 +52,7 @@ public partial class MainViewModel : ViewModelBase
         _serial.ErrorOccurred += OnErrorOccurred;
         _serial.ConnectionChanged += OnConnectionChanged;
         RefreshPorts();
+        _ = CheckUpdatesOnStartupAsync();
     }
 
     [RelayCommand]
@@ -108,6 +112,30 @@ public partial class MainViewModel : ViewModelBase
     public void ClearReceived()
     {
         ReceivedText = string.Empty;
+    }
+
+    private async Task CheckUpdatesOnStartupAsync()
+    {
+        try
+        {
+            var info = await _updateService.CheckForUpdatesAsync();
+            if (info != null)
+            {
+                UpdateAvailable = true;
+                UpdateVersion = info.Version;
+                StatusMessage = $"发现新版本: {info.Version}";
+            }
+        }
+        catch
+        {
+            // Silently fail — update check is best-effort
+        }
+    }
+
+    [RelayCommand]
+    public async Task ApplyUpdateAsync()
+    {
+        await _updateService.DownloadAndInstallUpdateAsync();
     }
 
     private void OnDataReceived(object? sender, DataReceivedEventArgs e)
