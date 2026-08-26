@@ -4,12 +4,19 @@
              Background="{DynamicResource ActivityBarBgBrush}">
 
     <StackPanel Orientation="Vertical" VerticalAlignment="Top">
-        <!-- 串口参数 - 汉堡菜单 -->
-        <Button Style="{DynamicResource ActivityIconButton}" ToolTip="串口参数">
+        <Button Style="{DynamicResource ActivityIconButton}" ToolTip="串口参数"
+                Command="{Binding SwitchToSerialCommand}">
             <Path Data="M2,5 L22,5 M2,11 L22,11 M2,17 L22,17"
                   Stroke="{DynamicResource ActivityIconBrush}" StrokeThickness="1.5"
                   StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                   Width="22" Height="18" Stretch="Uniform"/>
+        </Button>
+        <Button Style="{DynamicResource ActivityIconButton}" ToolTip="PID 调试"
+                Command="{Binding SwitchToPidCommand}">
+            <Path Data="M2,22 L6,14 L10,18 L14,8 L18,12 L22,4"
+                  Stroke="{DynamicResource ActivityIconBrush}" StrokeThickness="1.5"
+                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                  Width="24" Height="20" Stretch="Uniform" Fill="Transparent"/>
         </Button>
     </StackPanel>
 </UserControl>
