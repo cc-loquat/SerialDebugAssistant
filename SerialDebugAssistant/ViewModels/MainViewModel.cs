@@ -46,6 +46,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     [ObservableProperty] private string _updateVersion = string.Empty;
     private string _updateReleaseNotes = string.Empty;
 
+    public string AppVersion => $"串口调试助手 v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.1"}";
+
     public ObservableCollection<string> AvailablePorts => _availablePorts;
 
     public string ConnectButtonText => IsConnected ? "关闭" : "打开";

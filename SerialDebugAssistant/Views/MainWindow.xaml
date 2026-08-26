@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:SerialDebugAssistant.ViewModels"
         xmlns:controls="clr-namespace:SerialDebugAssistant.Views.Controls"
-        Title="串口调试助手 v0.1" Height="640" Width="960"
+        Title="{Binding AppVersion}" Height="640" Width="960"
         MinWidth="720" MinHeight="480"
         Background="{DynamicResource MainBgBrush}"
         WindowStartupLocation="CenterScreen"
@@ -37,7 +37,7 @@
                     <BitmapImage UriSource="pack://application:,,,/app.ico" DecodePixelWidth="20" DecodePixelHeight="20"/>
                 </Image.Source>
             </Image>
-            <TextBlock Grid.Column="1" Text="串口调试助手 v0.1" VerticalAlignment="Center" Margin="0,0,0,0"
+            <TextBlock Grid.Column="1" Text="{Binding AppVersion}" VerticalAlignment="Center" Margin="0,0,0,0"
                        Foreground="{DynamicResource ForegroundBrush}" FontSize="12"/>
             <StackPanel Grid.Column="3" Orientation="Horizontal">
                 <Button Style="{DynamicResource TitleBarButtonStyle}" Content="_" Click="Minimize_Click" ToolTip="最小化"
