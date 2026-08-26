@@ -1,0 +1,14 @@
+# IDE / Agent directories
+.claude/
+.vscode/
+.idea/
+
+# Build outputs
+bin/
+obj/
+Output/
+publish/
+
+# User-specific files
+*.user
+*.suo

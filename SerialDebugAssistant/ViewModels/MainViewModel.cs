@@ -17,6 +17,9 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private readonly IUpdateService _updateService = new UpdateService();
     private readonly ObservableCollection<string> _availablePorts = new();
 
+    public event Action<string, string, string>? DataLineReceived; // (text, direction, timestamp)
+    public event Action? ClearReceivedRequested;
+
     [ObservableProperty] private string _selectedPort = "COM1";
     [ObservableProperty] private int _baudRate = 115200;
     [ObservableProperty] private int _dataBits = 8;
@@ -105,7 +108,9 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         if (data.Length == 0) return;
         await _serial.SendAsync(data);
         TxByteCount += data.Length;
-        ReceivedText += $"[TX] {HexConverter.BytesToHexString(data)}\n";
+        var hex = HexConverter.BytesToHexString(data);
+        ReceivedText += $"[TX] {hex}\n";
+        DataLineReceived?.Invoke(hex, "TX", DateTime.Now.ToString("HH:mm:ss.fff"));
         SendText = string.Empty;
     }
 
@@ -113,6 +118,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     public void ClearReceived()
     {
         ReceivedText = string.Empty;
+        ClearReceivedRequested?.Invoke();
     }
 
     private async Task CheckUpdatesOnStartupAsync()
@@ -147,7 +153,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             : HexConverter.BytesToAscii(e.Data);
         var ts = e.Timestamp;
         var line = $"[RX {ts:HH:mm:ss.fff}] {text}\n";
-        System.Windows.Application.Current?.Dispatcher.Invoke(() => ReceivedText += line);
+        System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+        {
+            ReceivedText += line;
+            DataLineReceived?.Invoke(text, "RX", ts.ToString("HH:mm:ss.fff"));
+        });
         _ = _logService.AppendAsync(new ReceivedData
         {
             Timestamp = ts,

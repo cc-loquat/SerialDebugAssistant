@@ -21,11 +21,20 @@
                     <RadioButton Content="HEX" Style="{DynamicResource OptionRadioStyle}"
                                  IsChecked="{Binding ReceiveAsHex, Mode=TwoWay}"/>
                 </StackPanel>
-                <TextBox Grid.Row="1" x:Name="RecvBox"
-                         Style="{DynamicResource DataTextBoxStyle}"
-                         Text="{Binding ReceivedText, Mode=OneWay}"
-                         IsReadOnly="True" TextWrapping="NoWrap"
-                         TextChanged="RecvBox_TextChanged"/>
+                <RichTextBox Grid.Row="1" x:Name="RecvBox"
+                             IsReadOnly="True"
+                             FontFamily="Cascadia Code, Consolas, monospace"
+                             FontSize="13"
+                             Background="{DynamicResource MainBgBrush}"
+                             Foreground="{DynamicResource ForegroundBrush}"
+                             BorderThickness="0"
+                             Padding="8,4"
+                             VerticalScrollBarVisibility="Auto"
+                             HorizontalScrollBarVisibility="Auto">
+                    <RichTextBox.Resources>
+                        <Style TargetType="{x:Type DocumentPageView}"/>
+                    </RichTextBox.Resources>
+                </RichTextBox>
             </Grid>
         </GroupBox>
 
