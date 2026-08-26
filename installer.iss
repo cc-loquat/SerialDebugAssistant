@@ -1,9 +1,9 @@
 ; SerialDebugAssistant 安装程序 — Inno Setup 6
 ; 双击安装，支持选择安装路径、同意协议、创建快捷方式
 
-#define MyAppName "SerialDebugAssistant"
+#define MyAppName "Comm Terminal"
 #define MyAppVersion "0.2.0"
-#define MyAppPublisher "SerialDebugAssistant"
+#define MyAppPublisher "Comm Terminal"
 #define MyAppURL "https://github.com/cc-loquat/SerialDebugAssistant"
 #define MyAppExeName "SerialDebugAssistant.exe"
 
