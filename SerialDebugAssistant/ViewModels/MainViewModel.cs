@@ -11,6 +11,8 @@ using SerialDebugAssistant.Views.Dialogs;
 
 namespace SerialDebugAssistant.ViewModels;
 
+public enum AppView { Serial, Pid }
+
 public partial class MainViewModel : ViewModelBase, IDisposable
 {
     private readonly ISerialService _serial;
@@ -32,6 +34,15 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     [ObservableProperty] private string _sendText = string.Empty;
     [ObservableProperty] private bool _sendAsHex;
     [ObservableProperty] private bool _receiveAsHex;
+    [ObservableProperty] private AppView _selectedView = AppView.Serial;
+
+    partial void OnSelectedViewChanged(AppView value)
+    {
+        if (value == AppView.Pid)
+        {
+            PidViewModel.IsPausedState = false;
+        }
+    }
 
     public bool ReceiveAsAscii { get => !ReceiveAsHex; set => ReceiveAsHex = !value; }
     public bool SendAsAscii { get => !SendAsHex; set => SendAsHex = !value; }
@@ -47,6 +58,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     private string _updateReleaseNotes = string.Empty;
 
     public string AppVersion => $"Comm Terminal v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.1"}";
+    public PidViewModel PidViewModel { get; }
 
     public ObservableCollection<string> AvailablePorts => _availablePorts;
 
@@ -55,6 +67,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     public MainViewModel(ISerialService serial)
     {
         _serial = serial;
+        PidViewModel = new PidViewModel(serial);
         _serial.DataReceived += OnDataReceived;
         _serial.ErrorOccurred += OnErrorOccurred;
         _serial.ConnectionChanged += OnConnectionChanged;
@@ -125,6 +138,12 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         ClearReceivedRequested?.Invoke();
     }
 
+    [RelayCommand]
+    public void SwitchToSerial() => SelectedView = AppView.Serial;
+
+    [RelayCommand]
+    public void SwitchToPid() => SelectedView = AppView.Pid;
+
     private async Task CheckUpdatesOnStartupAsync()
     {
         try
@@ -176,6 +195,9 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         {
             ReceivedText += line;
             DataLineReceived?.Invoke(text, "RX", ts.ToString("HH:mm:ss.fff"));
+
+            // Forward PID data to PidViewModel
+            PidViewModel.OnDataReceived(text, ts.ToString("HH:mm:ss.fff"));
         });
         _ = _logService.AppendAsync(new ReceivedData
         {

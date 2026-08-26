@@ -2,7 +2,7 @@
 ; 双击安装，支持选择安装路径、同意协议、创建快捷方式
 
 #define MyAppName "SerialDebugAssistant"
-#define MyAppVersion "0.1.9"
+#define MyAppVersion "0.2.0"
 #define MyAppPublisher "SerialDebugAssistant"
 #define MyAppURL "https://github.com/cc-loquat/SerialDebugAssistant"
 #define MyAppExeName "SerialDebugAssistant.exe"

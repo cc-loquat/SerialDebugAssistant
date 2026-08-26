@@ -6,6 +6,7 @@
         Title="{Binding AppVersion}" Height="640" Width="960"
         MinWidth="720" MinHeight="480"
         Background="{DynamicResource MainBgBrush}"
+        FontFamily="Microsoft YaHei UI, Segoe UI"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         AllowsTransparency="False"
@@ -59,14 +60,17 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <controls:ActivityBar Grid.Column="0" Width="48"/>
+            <controls:ActivityBar Grid.Column="0" Width="48" x:Name="ActivityBarCtrl"/>
             <Border Grid.Column="1" Width="1" Background="{DynamicResource BorderBrush}"/>
-            <controls:SidebarPanel Grid.Column="2" Width="240"/>
+            <controls:SidebarPanel Grid.Column="2" Width="240" x:Name="SerialSidebar" Visibility="Visible"/>
+            <controls:PidSidebar Grid.Column="2" Width="240" x:Name="PidSidebarCtrl" Visibility="Collapsed"
+                                DataContext="{Binding PidViewModel}"/>
             <Border Grid.Column="3" Width="1" Background="{DynamicResource BorderBrush}"/>
-            <controls:DataDisplayPanel Grid.Column="4"/>
+            <controls:DataDisplayPanel Grid.Column="4" x:Name="SerialMainPanel" Visibility="Visible"/>
+            <controls:PidPanel Grid.Column="4" x:Name="PidMainPanelCtrl" Visibility="Collapsed"
+                               DataContext="{Binding PidViewModel}"/>
         </Grid>
 
-        <Border Grid.Row="2" Height="1" Background="{DynamicResource BorderBrush}" VerticalAlignment="Top"/>
         <controls:StatusBar Grid.Row="2"/>
     </Grid>
 </Window>

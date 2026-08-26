@@ -1,0 +1,102 @@
+<UserControl x:Class="SerialDebugAssistant.Views.Controls.PidSidebar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource SidebarBgBrush}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Background="{DynamicResource SidebarBgBrush}"
+                  Style="{DynamicResource DarkScrollViewerStyle}">
+        <StackPanel Margin="16,12">
+            <TextBlock Text="PID 参数" Style="{DynamicResource SectionHeaderStyle}"/>
+
+            <TextBlock Text="Kp (比例)" Style="{DynamicResource LabelStyle}"/>
+            <TextBox Style="{DynamicResource ParameterTextBoxStyle}"
+                     Text="{Binding Kp, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <TextBlock Text="Ki (积分)" Style="{DynamicResource LabelStyle}" Margin="0,8,0,0"/>
+            <TextBox Style="{DynamicResource ParameterTextBoxStyle}"
+                     Text="{Binding Ki, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <TextBlock Text="Kd (微分)" Style="{DynamicResource LabelStyle}" Margin="0,8,0,0"/>
+            <TextBox Style="{DynamicResource ParameterTextBoxStyle}"
+                     Text="{Binding Kd, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <!-- 分割线 -->
+            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,16,0,16"/>
+
+            <TextBlock Text="目标值" Style="{DynamicResource SectionHeaderStyle}"/>
+
+            <Grid Margin="0,0,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Margin="0,0,4,0">
+                    <TextBlock Text="最小值" Style="{DynamicResource LabelStyle}"/>
+                    <TextBox Style="{DynamicResource ParameterTextBoxStyle}"
+                             Text="{Binding TargetMin, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Margin="4,0,0,0">
+                    <TextBlock Text="最大值" Style="{DynamicResource LabelStyle}"/>
+                    <TextBox Style="{DynamicResource ParameterTextBoxStyle}"
+                             Text="{Binding TargetMax, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+            </Grid>
+
+            <TextBlock Text="当前目标" Style="{DynamicResource LabelStyle}" Margin="0,8,0,0"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" Style="{DynamicResource ParameterTextBoxStyle}"
+                         Text="{Binding TargetValue, UpdateSourceTrigger=PropertyChanged}"/>
+                <Button Grid.Column="1" Content="发送" Width="50" Margin="6,0,0,0"
+                        Style="{DynamicResource SendButtonStyle}"
+                        Command="{Binding SendTargetCommand}"/>
+            </Grid>
+
+            <!-- 拖动条 -->
+            <Slider x:Name="TargetSlider" Margin="0,8,0,0"
+                    Minimum="{Binding TargetMin}"
+                    Maximum="{Binding TargetMax}"
+                    Value="{Binding TargetValue, Mode=TwoWay}"
+                    TickFrequency="0.1"
+                    IsSnapToTickEnabled="False"
+                    Style="{DynamicResource DarkSliderStyle}"/>
+
+            <!-- 分割线 -->
+            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,16,0,16"/>
+
+            <Button Content="发送全部参数" Height="36" Margin="0,0,0,4"
+                    Style="{DynamicResource SendButtonStyle}"
+                    Command="{Binding SendAllCommand}"/>
+
+            <Button Content="发送 PID 参数" Height="32" Margin="0,4,0,4"
+                    Style="{DynamicResource SecondaryButtonStyle}"
+                    Command="{Binding SendPidParamsCommand}"/>
+
+            <!-- 数据解析设置 -->
+            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,16,0,16"/>
+
+            <TextBlock Text="数据解析" Style="{DynamicResource SectionHeaderStyle}"/>
+
+            <TextBlock Text="目标值前缀" Style="{DynamicResource LabelStyle}"/>
+            <TextBox Style="{DynamicResource ParameterTextBoxStyle}"
+                     Text="{Binding TargetPrefix, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <TextBlock Text="实际值前缀" Style="{DynamicResource LabelStyle}" Margin="0,8,0,0"/>
+            <TextBox Style="{DynamicResource ParameterTextBoxStyle}"
+                     Text="{Binding ActualPrefix, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <TextBlock Text="分隔符" Style="{DynamicResource LabelStyle}" Margin="0,8,0,0"/>
+            <ComboBox Style="{DynamicResource ParameterComboBoxStyle}"
+                      SelectedItem="{Binding DataSeparator}">
+                <ComboBoxItem>,</ComboBoxItem>
+                <ComboBoxItem>;</ComboBoxItem>
+                <ComboBoxItem>\t</ComboBoxItem>
+                <ComboBoxItem> </ComboBoxItem>
+            </ComboBox>
+
+            <TextBlock Text="输入示例: T:90,A:88.5" Foreground="#606060" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
