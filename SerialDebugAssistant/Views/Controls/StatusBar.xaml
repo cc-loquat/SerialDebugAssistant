@@ -28,7 +28,44 @@
 
         <TextBlock Grid.Column="1" Text="{Binding StatusMessage}"
                    Foreground="{DynamicResource ForegroundBrush}"
-                   VerticalAlignment="Center" Margin="8,0,0,0" FontSize="12"/>
+                   VerticalAlignment="Center" Margin="8,0,0,0" FontSize="12">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding UpdateAvailable}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+
+        <!-- 更新提示按钮（当 UpdateAvailable 时显示） -->
+        <Button Grid.Column="1" VerticalAlignment="Center" Margin="8,0,0,0"
+                Command="{Binding ApplyUpdateCommand}"
+                FontSize="12" Cursor="Hand"
+                Foreground="#4EC9B0" Background="Transparent" BorderThickness="0"
+                ToolTip="点击下载并安装更新">
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding UpdateAvailable}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="⬆ " FontSize="12" Foreground="#4EC9B0" VerticalAlignment="Center"/>
+                <TextBlock FontSize="12" Foreground="#4EC9B0" VerticalAlignment="Center">
+                    <Run Text="发现新版本: "/>
+                    <Run Text="{Binding UpdateVersion}" FontWeight="Bold"/>
+                    <Run Text="  — 点击更新"/>
+                </TextBlock>
+            </StackPanel>
+        </Button>
 
         <TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="0,0,12,0"
                    Foreground="{DynamicResource ForegroundInactiveBrush}" FontSize="12">
