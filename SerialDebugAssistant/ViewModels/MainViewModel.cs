@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using SerialDebugAssistant.Models;
 using SerialDebugAssistant.Services;
 using SerialDebugAssistant.Utils;
+using SerialDebugAssistant.Views.Dialogs;
 
 namespace SerialDebugAssistant.ViewModels;
 
@@ -43,6 +44,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     [ObservableProperty] private string _statusMessage = "就绪";
     [ObservableProperty] private bool _updateAvailable;
     [ObservableProperty] private string _updateVersion = string.Empty;
+    private string _updateReleaseNotes = string.Empty;
 
     public ObservableCollection<string> AvailablePorts => _availablePorts;
 
@@ -130,7 +132,22 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             {
                 UpdateAvailable = true;
                 UpdateVersion = info.Version;
+                _updateReleaseNotes = info.ReleaseNotes;
                 StatusMessage = $"发现新版本: {info.Version}";
+
+                // 在 UI 线程弹窗
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+                {
+                    var dialog = new UpdateDialog(info.Version, info.ReleaseNotes)
+                    {
+                        Owner = System.Windows.Application.Current.MainWindow
+                    };
+                    dialog.ShowDialog();
+                    if (dialog.ShouldUpdate)
+                    {
+                        await _updateService.DownloadAndInstallUpdateAsync();
+                    }
+                });
             }
         }
         catch
