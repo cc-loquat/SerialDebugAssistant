@@ -10,7 +10,10 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>SerialDebugAssistant</AssemblyName>
     <RootNamespace>SerialDebugAssistant</RootNamespace>
-    <Version>0.2.0</Version>
+    <Version>0.2.1</Version>
+    <Product>Comm Terminal</Product>
+    <Title>Comm Terminal</Title>
+    <Company>Comm Terminal</Company>
     <StartupObject>SerialDebugAssistant.Program</StartupObject>
   </PropertyGroup>
 
