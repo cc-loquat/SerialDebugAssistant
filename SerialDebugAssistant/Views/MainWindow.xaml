@@ -69,6 +69,8 @@
             <controls:DataDisplayPanel Grid.Column="4" x:Name="SerialMainPanel" Visibility="Visible"/>
             <controls:PidPanel Grid.Column="4" x:Name="PidMainPanelCtrl" Visibility="Collapsed"
                                DataContext="{Binding PidViewModel}"/>
+            <controls:OtaPanel Grid.Column="2" Grid.ColumnSpan="3" x:Name="OtaMainPanelCtrl" Visibility="Collapsed"
+                               DataContext="{Binding OtaViewModel}"/>
         </Grid>
 
         <controls:StatusBar Grid.Row="2"/>

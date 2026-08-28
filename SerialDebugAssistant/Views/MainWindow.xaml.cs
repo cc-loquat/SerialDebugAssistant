@@ -30,10 +30,12 @@ public partial class MainWindow : Window
     private void ApplyView()
     {
         var isPid = _vm.SelectedView == AppView.Pid;
-        SerialSidebar.Visibility = isPid ? Visibility.Collapsed : Visibility.Visible;
-        SerialMainPanel.Visibility = isPid ? Visibility.Collapsed : Visibility.Visible;
+        var isOta = _vm.SelectedView == AppView.Ota;
+        SerialSidebar.Visibility = isPid || isOta ? Visibility.Collapsed : Visibility.Visible;
+        SerialMainPanel.Visibility = isPid || isOta ? Visibility.Collapsed : Visibility.Visible;
         PidSidebarCtrl.Visibility = isPid ? Visibility.Visible : Visibility.Collapsed;
         PidMainPanelCtrl.Visibility = isPid ? Visibility.Visible : Visibility.Collapsed;
+        OtaMainPanelCtrl.Visibility = isOta ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;

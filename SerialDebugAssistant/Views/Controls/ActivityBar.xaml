@@ -18,5 +18,12 @@
                   StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                   Width="24" Height="20" Stretch="Uniform" Fill="Transparent"/>
         </Button>
+        <Button Style="{DynamicResource ActivityIconButton}" ToolTip="OTA 升级"
+                Command="{Binding SwitchToOtaCommand}">
+            <Path Data="M12,2 L12,15 M7,7 L12,2 L17,7 M4,14 L4,21 L20,21 L20,14"
+                  Stroke="{DynamicResource ActivityIconBrush}" StrokeThickness="1.5"
+                  StrokeStartLineCap="Round" StrokeLineJoin="Round"
+                  Width="24" Height="22" Stretch="Uniform" Fill="Transparent"/>
+        </Button>
     </StackPanel>
 </UserControl>

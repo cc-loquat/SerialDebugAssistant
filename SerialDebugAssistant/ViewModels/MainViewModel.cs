@@ -11,7 +11,7 @@ using SerialDebugAssistant.Views.Dialogs;
 
 namespace SerialDebugAssistant.ViewModels;
 
-public enum AppView { Serial, Pid }
+public enum AppView { Serial, Pid, Ota }
 
 public partial class MainViewModel : ViewModelBase, IDisposable
 {
@@ -62,6 +62,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
     public string AppVersion => $"Comm Terminal v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.1"}";
     public PidViewModel PidViewModel { get; }
+    public OtaViewModel OtaViewModel { get; }
 
     public ObservableCollection<string> AvailablePorts => _availablePorts;
 
@@ -71,6 +72,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     {
         _serial = serial;
         PidViewModel = new PidViewModel(serial);
+        OtaViewModel = new OtaViewModel(serial);
         _serial.DataReceived += OnDataReceived;
         _serial.ErrorOccurred += OnErrorOccurred;
         _serial.ConnectionChanged += OnConnectionChanged;
@@ -146,6 +148,9 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
     [RelayCommand]
     public void SwitchToPid() => SelectedView = AppView.Pid;
+
+    [RelayCommand]
+    public void SwitchToOta() => SelectedView = AppView.Ota;
 
     private async Task CheckUpdatesOnStartupAsync()
     {
@@ -227,6 +232,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
     public void Dispose()
     {
+        OtaViewModel.Dispose();
         _serial?.Dispose();
         GC.SuppressFinalize(this);
     }
