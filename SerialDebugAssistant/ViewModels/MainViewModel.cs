@@ -35,6 +35,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     [ObservableProperty] private bool _sendAsHex;
     [ObservableProperty] private bool _receiveAsHex;
     [ObservableProperty] private AppView _selectedView = AppView.Serial;
+    [ObservableProperty] private string _selectedTheme = ThemeService.LoadTheme();
 
     partial void OnSelectedViewChanged(AppView value)
     {
@@ -43,6 +44,8 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             PidViewModel.IsPausedState = false;
         }
     }
+
+    partial void OnSelectedThemeChanged(string value) => ThemeService.Apply(value);
 
     public bool ReceiveAsAscii { get => !ReceiveAsHex; set => ReceiveAsHex = !value; }
     public bool SendAsAscii { get => !SendAsHex; set => SendAsHex = !value; }

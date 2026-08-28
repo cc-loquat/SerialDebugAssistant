@@ -11,7 +11,7 @@
         MouseLeftButtonDown="Window_MouseLeftButtonDown"
         ShowInTaskbar="False">
 
-    <Border Background="#1F1F1F" BorderBrush="#2B2B2B" BorderThickness="1" CornerRadius="8">
+    <Border Background="{DynamicResource MainBgBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8">
         <Grid Margin="28">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -23,16 +23,16 @@
             <!-- 标题栏 -->
             <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,4">
                 <TextBlock Text="🔄" FontSize="20" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                <TextBlock Text="发现新版本" FontSize="18" FontWeight="Bold" Foreground="#CCCCCC" VerticalAlignment="Center"/>
+                <TextBlock Text="发现新版本" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource ForegroundBrush}" VerticalAlignment="Center"/>
             </StackPanel>
 
             <!-- 版本号 -->
-            <TextBlock Grid.Row="1" x:Name="VersionBlock" FontSize="14" Foreground="#4EC9B0" Margin="0,8,0,16"/>
+            <TextBlock Grid.Row="1" x:Name="VersionBlock" FontSize="14" Foreground="{DynamicResource RxTextBrush}" Margin="0,8,0,16"/>
 
             <!-- 更新说明 -->
-            <Border Grid.Row="2" Background="#2D2D2D" CornerRadius="6" Padding="14">
+            <Border Grid.Row="2" Background="{DynamicResource InputBgBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="14">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <TextBlock x:Name="ReleaseNotesBlock" FontSize="13" Foreground="#B0B0B0"
+                    <TextBlock x:Name="ReleaseNotesBlock" FontSize="13" Foreground="{DynamicResource ForegroundBrush}"
                                TextWrapping="Wrap" LineHeight="22"/>
                 </ScrollViewer>
             </Border>
@@ -40,7 +40,7 @@
             <!-- 按钮 -->
             <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
                 <Button x:Name="LaterButton" Content="稍后" Width="90" Height="34"
-                        Foreground="#999999" Background="#333333" BorderThickness="0"
+                        Foreground="{DynamicResource ForegroundBrush}" Background="{DynamicResource DropdownHoverBrush}" BorderThickness="0"
                         FontSize="13" Cursor="Hand"
                         Click="LaterButton_Click">
                     <Button.Resources>
@@ -50,7 +50,7 @@
                     </Button.Resources>
                 </Button>
                 <Button x:Name="UpdateButton" Content="立即更新" Width="110" Height="34" Margin="12,0,0,0"
-                        Foreground="White" Background="#0078D4" BorderThickness="0"
+                        Foreground="White" Background="{DynamicResource AccentBrush}" BorderThickness="0"
                         FontSize="13" FontWeight="SemiBold" Cursor="Hand"
                         Click="UpdateButton_Click">
                     <Button.Resources>

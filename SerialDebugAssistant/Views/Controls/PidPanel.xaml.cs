@@ -26,19 +26,18 @@ public partial class PidPanel : UserControl
     {
         _targetLine = new Polyline
         {
-            Stroke = new SolidColorBrush(Color.FromRgb(0xE5, 0xA8, 0x4B)),
             StrokeThickness = 2,
             StrokeDashArray = new DoubleCollection { 5, 3 },
             Fill = Brushes.Transparent
         };
         _actualLine = new Polyline
         {
-            Stroke = new SolidColorBrush(Color.FromRgb(0x4C, 0xC9, 0xA4)),
             StrokeThickness = 2.2,
             Fill = Brushes.Transparent
         };
         ChartCanvas.Children.Add(_targetLine);
         ChartCanvas.Children.Add(_actualLine);
+        ApplyChartTheme();
     }
 
     private void ChartCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -53,6 +52,7 @@ public partial class PidPanel : UserControl
         if (ChartCanvas.ActualWidth < 1 || ChartCanvas.ActualHeight < 1) return;
 
         var points = vm.DataPoints;
+        ApplyChartTheme();
         var margin = new Thickness(40, 20, 20, 30);
         var chartW = ChartCanvas.ActualWidth - margin.Left - margin.Right;
         var chartH = ChartCanvas.ActualHeight - margin.Top - margin.Bottom;
@@ -115,8 +115,8 @@ public partial class PidPanel : UserControl
     private void DrawGrid(Thickness margin, double chartW, double chartH,
         double minTime, double maxTime, double yMin, double yMax)
     {
-        var gridBrush = new SolidColorBrush(Color.FromRgb(0x2D, 0x35, 0x3E));
-        var textBrush = new SolidColorBrush(Color.FromRgb(0x8B, 0x95, 0xA3));
+        var gridBrush = (Brush)FindResource("ChartGridBrush");
+        var textBrush = (Brush)FindResource("ChartTextBrush");
 
         // 水平网格线 (Y轴)
         for (int i = 0; i <= 4; i++)
@@ -161,6 +161,12 @@ public partial class PidPanel : UserControl
             };
             ChartCanvas.Children.Add(tb);
         }
+    }
+
+    private void ApplyChartTheme()
+    {
+        _targetLine.Stroke = (Brush)FindResource("ChartTargetBrush");
+        _actualLine.Stroke = (Brush)FindResource("ChartActualBrush");
     }
 
     private void ChartCanvas_MouseWheel(object sender, MouseWheelEventArgs e)

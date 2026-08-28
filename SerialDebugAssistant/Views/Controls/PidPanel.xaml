@@ -24,10 +24,10 @@
             <CheckBox Grid.Column="1" Content="目标值" IsChecked="{Binding ShowTargetLine}" Style="{DynamicResource CheckBoxStyle}" Margin="0,0,12,0" VerticalAlignment="Center"/>
             <CheckBox Grid.Column="2" Content="实际值" IsChecked="{Binding ShowActualLine}" Style="{DynamicResource CheckBoxStyle}" Margin="0,0,12,0" VerticalAlignment="Center"/>
             <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
-                <Rectangle Width="10" Height="3" Fill="#E5A84B" RadiusX="1" RadiusY="1" Margin="0,0,4,0"/>
-                <TextBlock Text="目标" Foreground="#B8BDC7" FontSize="11" Margin="0,0,12,0"/>
-                <Rectangle Width="10" Height="3" Fill="#4CC9A4" RadiusX="1" RadiusY="1" Margin="0,0,4,0"/>
-                <TextBlock Text="实际" Foreground="#B8BDC7" FontSize="11"/>
+                <Rectangle Width="10" Height="3" Fill="{DynamicResource ChartTargetBrush}" RadiusX="1" RadiusY="1" Margin="0,0,4,0"/>
+                <TextBlock Text="目标" Foreground="{DynamicResource ForegroundInactiveBrush}" FontSize="11" Margin="0,0,12,0"/>
+                <Rectangle Width="10" Height="3" Fill="{DynamicResource ChartActualBrush}" RadiusX="1" RadiusY="1" Margin="0,0,4,0"/>
+                <TextBlock Text="实际" Foreground="{DynamicResource ForegroundInactiveBrush}" FontSize="11"/>
             </StackPanel>
             <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="0,0,8,0">
                 <Button Content="{Binding PauseButtonText}" Width="60" Height="26" Margin="0,0,6,0"
@@ -43,7 +43,7 @@
         </Grid>
 
         <!-- 曲线图区域 -->
-        <Border Grid.Row="1" Margin="12,4,12,4" Background="#15181C" BorderBrush="#29313A" BorderThickness="1" CornerRadius="4" ClipToBounds="True">
+        <Border Grid.Row="1" Margin="12,4,12,4" Background="{DynamicResource ChartBackgroundBrush}" BorderBrush="{DynamicResource ChartBorderBrush}" BorderThickness="1" CornerRadius="4" ClipToBounds="True">
             <Grid>
                 <Canvas x:Name="ChartCanvas" Background="Transparent"
                         SizeChanged="ChartCanvas_SizeChanged"
@@ -53,13 +53,13 @@
                         MouseUp="ChartCanvas_MouseUp"/>
                 <!-- Y轴标签 -->
                 <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="4,4">
-                    <TextBlock Text="{Binding YAxisMaxText}" Foreground="#808080" FontSize="10" FontFamily="Cascadia Code"/>
-                    <TextBlock Text="{Binding YAxisMidText}" Foreground="#808080" FontSize="10" FontFamily="Cascadia Code" Margin="0,80,0,0"/>
-                    <TextBlock Text="{Binding YAxisMinText}" Foreground="#808080" FontSize="10" FontFamily="Cascadia Code" Margin="0,80,0,0"/>
+                    <TextBlock Text="{Binding YAxisMaxText}" Foreground="{DynamicResource ChartTextBrush}" FontSize="10" FontFamily="Cascadia Code"/>
+                    <TextBlock Text="{Binding YAxisMidText}" Foreground="{DynamicResource ChartTextBrush}" FontSize="10" FontFamily="Cascadia Code" Margin="0,80,0,0"/>
+                    <TextBlock Text="{Binding YAxisMinText}" Foreground="{DynamicResource ChartTextBrush}" FontSize="10" FontFamily="Cascadia Code" Margin="0,80,0,0"/>
                 </StackPanel>
                 <!-- 提示信息 -->
                 <TextBlock Text="等待数据..." HorizontalAlignment="Center" VerticalAlignment="Center"
-                           Foreground="#606060" FontSize="13"
+                           Foreground="{DynamicResource ForegroundInactiveBrush}" FontSize="13"
                            Visibility="{Binding HasData, Converter={StaticResource InverseBoolToVisibility}}"/>
             </Grid>
         </Border>

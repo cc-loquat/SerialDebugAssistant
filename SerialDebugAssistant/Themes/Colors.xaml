@@ -14,6 +14,9 @@
 
     <!-- 蓝色 accent 调低饱和度，更柔和的青色蓝 -->
     <Color x:Key="AccentColor">#3C88B5</Color>
+    <Color x:Key="AccentHoverColor">#2C6E99</Color>
+    <Color x:Key="SendButtonColor">#19A974</Color>
+    <Color x:Key="SendButtonHoverColor">#28C58B</Color>
 
     <Color x:Key="ForegroundColor">#CCCCCC</Color>
     <Color x:Key="ForegroundInactiveColor">#868686</Color>
@@ -37,6 +40,9 @@
     <SolidColorBrush x:Key="StatusBarDisconnectedBrush" Color="{StaticResource StatusBarDisconnectedColor}"/>
 
     <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}"/>
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentHoverColor}"/>
+    <SolidColorBrush x:Key="SendButtonBrush" Color="{StaticResource SendButtonColor}"/>
+    <SolidColorBrush x:Key="SendButtonHoverBrush" Color="{StaticResource SendButtonHoverColor}"/>
     <SolidColorBrush x:Key="ForegroundBrush" Color="{StaticResource ForegroundColor}"/>
     <SolidColorBrush x:Key="ForegroundInactiveBrush" Color="{StaticResource ForegroundInactiveColor}"/>
     <SolidColorBrush x:Key="RxTextBrush" Color="{StaticResource RxTextColor}"/>
@@ -75,4 +81,16 @@
     <!-- 活动栏图标颜色 -->
     <Color x:Key="ActivityIconColor">#868686</Color>
     <SolidColorBrush x:Key="ActivityIconBrush" Color="{StaticResource ActivityIconColor}"/>
+    <Color x:Key="ChartBackgroundColor">#15181C</Color>
+    <Color x:Key="ChartBorderColor">#29313A</Color>
+    <Color x:Key="ChartGridColor">#2D353E</Color>
+    <Color x:Key="ChartTextColor">#8B95A3</Color>
+    <Color x:Key="ChartTargetColor">#E5A84B</Color>
+    <Color x:Key="ChartActualColor">#4CC9A4</Color>
+    <SolidColorBrush x:Key="ChartBackgroundBrush" Color="{StaticResource ChartBackgroundColor}"/>
+    <SolidColorBrush x:Key="ChartBorderBrush" Color="{StaticResource ChartBorderColor}"/>
+    <SolidColorBrush x:Key="ChartGridBrush" Color="{StaticResource ChartGridColor}"/>
+    <SolidColorBrush x:Key="ChartTextBrush" Color="{StaticResource ChartTextColor}"/>
+    <SolidColorBrush x:Key="ChartTargetBrush" Color="{StaticResource ChartTargetColor}"/>
+    <SolidColorBrush x:Key="ChartActualBrush" Color="{StaticResource ChartActualColor}"/>
 </ResourceDictionary>

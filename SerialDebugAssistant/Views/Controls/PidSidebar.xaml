@@ -96,7 +96,7 @@
                 <ComboBoxItem> </ComboBoxItem>
             </ComboBox>
 
-            <TextBlock Text="输入示例: T:90,A:88.5" Foreground="#606060" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap"/>
+            <TextBlock Text="输入示例: T:90,A:88.5" Foreground="{DynamicResource ForegroundInactiveBrush}" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap"/>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

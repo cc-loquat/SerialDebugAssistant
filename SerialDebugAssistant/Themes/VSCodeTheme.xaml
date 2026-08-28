@@ -85,7 +85,7 @@
         </Setter>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#2C6E99"/>
+                <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -113,7 +113,7 @@
         </Setter>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#2B2B2B"/>
+                <Setter Property="Background" Value="{DynamicResource DropdownHoverBrush}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -415,7 +415,7 @@
 
     <!-- 发送按钮（绿色强调） -->
     <Style x:Key="SendButtonStyle" TargetType="Button">
-        <Setter Property="Background" Value="#16825D"/>
+        <Setter Property="Background" Value="{DynamicResource SendButtonBrush}"/>
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="12,6"/>
@@ -432,7 +432,7 @@
         </Setter>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#1A9E6B"/>
+                <Setter Property="Background" Value="{DynamicResource SendButtonHoverBrush}"/>
             </Trigger>
         </Style.Triggers>
     </Style>

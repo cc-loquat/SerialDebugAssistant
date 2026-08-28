@@ -87,6 +87,17 @@
             <Button Content="清空接收" Margin="0,8,0,0" Height="30"
                     Style="{DynamicResource SecondaryButtonStyle}"
                     Command="{Binding ClearReceivedCommand}"/>
+
+            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,18,0,12"/>
+            <TextBlock Text="外观" Style="{DynamicResource SectionHeaderStyle}"/>
+            <TextBlock Text="主题" Style="{DynamicResource LabelStyle}"/>
+            <ComboBox Style="{DynamicResource ParameterComboBoxStyle}"
+                      SelectedValuePath="Content"
+                      SelectedValue="{Binding SelectedTheme, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <ComboBoxItem Content="深色"/>
+                <ComboBoxItem Content="浅色"/>
+                <ComboBoxItem Content="跟随系统"/>
+            </ComboBox>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

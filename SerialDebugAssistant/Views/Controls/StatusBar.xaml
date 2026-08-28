@@ -16,10 +16,10 @@
                  VerticalAlignment="Center">
             <Ellipse.Style>
                 <Style TargetType="Ellipse">
-                    <Setter Property="Fill" Value="#6E7681"/>
+                    <Setter Property="Fill" Value="{DynamicResource ForegroundInactiveBrush}"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding IsConnected}" Value="True">
-                            <Setter Property="Fill" Value="#2EA043"/>
+                            <Setter Property="Fill" Value="{DynamicResource SuccessBrush}"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
@@ -45,7 +45,7 @@
         <Button Grid.Column="1" VerticalAlignment="Center" Margin="8,0,0,0"
                 Command="{Binding ApplyUpdateCommand}"
                 FontSize="12" Cursor="Hand"
-                Foreground="#4EC9B0" Background="Transparent" BorderThickness="0"
+                Foreground="{DynamicResource RxTextBrush}" Background="Transparent" BorderThickness="0"
                 ToolTip="点击下载并安装更新">
             <Button.Style>
                 <Style TargetType="Button">
@@ -58,8 +58,8 @@
                 </Style>
             </Button.Style>
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="⬆ " FontSize="12" Foreground="#4EC9B0" VerticalAlignment="Center"/>
-                <TextBlock FontSize="12" Foreground="#4EC9B0" VerticalAlignment="Center">
+                <TextBlock Text="⬆ " FontSize="12" Foreground="{DynamicResource RxTextBrush}" VerticalAlignment="Center"/>
+                <TextBlock FontSize="12" Foreground="{DynamicResource RxTextBrush}" VerticalAlignment="Center">
                     <Run Text="发现新版本: "/>
                     <Run Text="{Binding UpdateVersion}" FontWeight="Bold"/>
                     <Run Text="  — 点击更新"/>
