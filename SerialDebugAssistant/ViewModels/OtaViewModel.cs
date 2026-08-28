@@ -2,7 +2,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Ports;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,13 +18,10 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
 {
     private const int MaxFirmwareSize = 0xE0000;
     private readonly ISerialService _serial;
-    private readonly StringBuilder _responseBuffer = new();
     private CancellationTokenSource? _upgradeCancellation;
-    private TaskCompletionSource<string>? _responseWaiter;
-    private Func<string, bool>? _expectedResponse;
-    private bool _isReconnecting;
 
-    [ObservableProperty] private string _selectedPort = string.Empty;
+    [ObservableProperty] private bool _isSerialConnected;
+    [ObservableProperty] private string _connectionStatus = "请先在“串口参数”页打开串口。";
     [ObservableProperty] private string _firmwarePath = string.Empty;
     [ObservableProperty] private string _firmwareName = "尚未选择固件";
     [ObservableProperty] private string _firmwareSize = "请选择 .bin 文件";
@@ -40,20 +36,18 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
     [ObservableProperty] private bool _isFailure;
     [ObservableProperty] private bool _isFirmwareValid;
 
-    public ObservableCollection<string> AvailablePorts { get; } = new();
     public ObservableCollection<string> UpgradeLogs { get; } = new();
-    public bool CanStartUpgrade => IsFirmwareValid && !IsUpgrading && !string.IsNullOrWhiteSpace(SelectedPort);
+    public bool CanStartUpgrade => IsFirmwareValid && IsSerialConnected && !IsUpgrading;
     public bool CanStopUpgrade => IsUpgrading;
 
     public OtaViewModel(ISerialService serial)
     {
         _serial = serial;
-        _serial.DataReceived += OnDataReceived;
         _serial.ConnectionChanged += OnConnectionChanged;
-        RefreshPorts();
+        UpdateConnectionState();
     }
 
-    partial void OnSelectedPortChanged(string value) => StartUpgradeCommand.NotifyCanExecuteChanged();
+    partial void OnIsSerialConnectedChanged(bool value) => StartUpgradeCommand.NotifyCanExecuteChanged();
     partial void OnIsUpgradingChanged(bool value)
     {
         StartUpgradeCommand.NotifyCanExecuteChanged();
@@ -61,15 +55,6 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
     }
 
     partial void OnIsFirmwareValidChanged(bool value) => StartUpgradeCommand.NotifyCanExecuteChanged();
-
-    [RelayCommand]
-    private void RefreshPorts()
-    {
-        var selected = SelectedPort;
-        AvailablePorts.Clear();
-        foreach (var port in _serial.GetAvailablePorts()) AvailablePorts.Add(port);
-        SelectedPort = AvailablePorts.Contains(selected) ? selected : (AvailablePorts.Count > 0 ? AvailablePorts[0] : string.Empty);
-    }
 
     [RelayCommand]
     private void ChooseFirmware()
@@ -96,7 +81,7 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
         FirmwareCrc32 = $"CRC32: {CalculateCrc32(bytes):X8}";
         IsFirmwareValid = true;
         IsFailure = false;
-        StatusDetail = "固件已就绪。开始后请在 3 秒内按下开发板复位键。";
+        StatusDetail = "固件已就绪。请先在串口参数页让设备进入升级模式。";
         AddLog($"已选择固件: {info.Name}，CRC32 {CalculateCrc32(bytes):X8}");
     }
 
@@ -116,33 +101,7 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
 
         try
         {
-            _isReconnecting = true;
-            if (_serial.IsOpen) await _serial.CloseAsync();
-            var opened = await _serial.OpenAsync(new SerialPortConfig
-            {
-                PortName = SelectedPort,
-                BaudRate = 115200,
-                DataBits = 8,
-                Parity = Parity.None,
-                StopBits = StopBits.One,
-                Handshake = Handshake.None,
-                ReadTimeout = 1000,
-                WriteTimeout = 3000
-            });
-            _isReconnecting = false;
-            if (!opened) throw new InvalidOperationException($"无法打开 {SelectedPort}。");
-
-            AddLog($"已打开 {SelectedPort}，115200 8N1");
-            StageText = "等待 Bootloader";
-            StatusDetail = "请在 3 秒内按下开发板复位键，正在发送进入升级模式指令。";
-            await SendUntilResponseAsync(new byte[] { (byte)'u' }, text => text.Contains("Upgrade mode", StringComparison.OrdinalIgnoreCase), TimeSpan.FromSeconds(3), token);
-
-            StageText = "正在擦除 App";
-            StatusDetail = "设备已进入 Upgrade mode，正在擦除当前 App。";
-            AddLog("已进入 Upgrade mode");
-            await SendAndWaitAsync(new byte[] { (byte)'e' }, text => text.Contains("Erase complete", StringComparison.OrdinalIgnoreCase), TimeSpan.FromSeconds(20), token);
-            AddLog("擦除完成，准备发送固件。");
-
+            if (!_serial.IsOpen) throw new InvalidOperationException("串口未打开，请先在“串口参数”页连接设备。");
             StageText = "正在传输固件";
             var crc = CalculateCrc32(firmware);
             var header = Encoding.ASCII.GetBytes("FWUP");
@@ -169,24 +128,13 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
                 TransferDetail = $"已传输 {sent / 1024d:F1} / {firmware.Length / 1024d:F1} KB  ·  {speed:F1} KB/s  ·  剩余约 {Math.Ceiling(remaining)} 秒";
             }
 
-            StageText = "正在校验固件";
-            StatusDetail = "固件传输完成，正在等待设备校验结果。";
-            var result = await WaitForResponseAsync(text =>
-                text.Contains("Firmware OK", StringComparison.OrdinalIgnoreCase) ||
-                text.Contains("Firmware failed", StringComparison.OrdinalIgnoreCase) ||
-                text.Contains("CRC error", StringComparison.OrdinalIgnoreCase), TimeSpan.FromSeconds(45), token);
-
-            if (result.Contains("Firmware OK", StringComparison.OrdinalIgnoreCase))
-            {
-                StageText = "升级完成";
-                StatusDetail = "升级成功，设备正在重启。";
-                TransferDetail = $"已完成 {firmware.Length / 1024d:F1} KB 传输";
-                Progress = 100;
-                ProgressText = "100%";
-                IsSuccess = true;
-                AddLog("Firmware OK. Resetting...");
-            }
-            else throw new InvalidOperationException("设备返回 Firmware failed 或 CRC error。");
+            StageText = "固件已发送";
+            StatusDetail = "固件数据已全部写入串口，请按设备自己的协议确认升级结果。";
+            TransferDetail = $"已发送 {firmware.Length / 1024d:F1} KB 固件数据";
+            Progress = 100;
+            ProgressText = "100%";
+            IsSuccess = true;
+            AddLog("固件数据发送完成。");
         }
         catch (OperationCanceledException)
         {
@@ -203,9 +151,6 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
         }
         finally
         {
-            _isReconnecting = false;
-            _responseWaiter = null;
-            _expectedResponse = null;
             IsUpgrading = false;
             _upgradeCancellation?.Dispose();
             _upgradeCancellation = null;
@@ -218,69 +163,18 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
     [RelayCommand]
     private void ClearLogs() => UpgradeLogs.Clear();
 
-    private async Task SendAndWaitAsync(byte[] data, Func<string, bool> expected, TimeSpan timeout, CancellationToken token)
-    {
-        var wait = BeginWait(expected, token);
-        await _serial.SendAsync(data);
-        await WaitWithTimeoutAsync(wait, timeout, token);
-    }
-
-    private async Task SendUntilResponseAsync(byte[] data, Func<string, bool> expected, TimeSpan timeout, CancellationToken token)
-    {
-        var wait = BeginWait(expected, token);
-        var deadline = DateTime.UtcNow + timeout;
-        while (!wait.Task.IsCompleted && DateTime.UtcNow < deadline)
-        {
-            await _serial.SendAsync(data);
-            await Task.Delay(250, token);
-        }
-        await WaitWithTimeoutAsync(wait, TimeSpan.Zero, token);
-    }
-
-    private Task<string> WaitForResponseAsync(Func<string, bool> expected, TimeSpan timeout, CancellationToken token) => WaitWithTimeoutAsync(BeginWait(expected, token), timeout, token);
-
-    private TaskCompletionSource<string> BeginWait(Func<string, bool> expected, CancellationToken token)
-    {
-        _responseBuffer.Clear();
-        _expectedResponse = expected;
-        _responseWaiter = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
-        token.Register(() => _responseWaiter.TrySetCanceled(token));
-        return _responseWaiter;
-    }
-
-    private static async Task<string> WaitWithTimeoutAsync(TaskCompletionSource<string> waiter, TimeSpan timeout, CancellationToken token)
-    {
-        if (timeout == TimeSpan.Zero)
-        {
-            if (!waiter.Task.IsCompleted) throw new TimeoutException("未收到 Upgrade mode，请确认复位时机和串口连接。");
-            return await waiter.Task;
-        }
-        var completed = await Task.WhenAny(waiter.Task, Task.Delay(timeout, token));
-        if (completed != waiter.Task)
-        {
-            token.ThrowIfCancellationRequested();
-            throw new TimeoutException("设备未在规定时间内返回预期响应。");
-        }
-        return await waiter.Task;
-    }
-
-    private void OnDataReceived(object? sender, SerialDebugAssistant.Services.DataReceivedEventArgs e)
-    {
-        if (!IsUpgrading) return;
-        var text = Encoding.ASCII.GetString(e.Data);
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            _responseBuffer.Append(text);
-            if (_responseBuffer.Length > 4096) _responseBuffer.Remove(0, _responseBuffer.Length - 4096);
-            var response = _responseBuffer.ToString();
-            if (_expectedResponse?.Invoke(response) == true) _responseWaiter?.TrySetResult(response);
-            if (text.Trim().Length > 0) AddLog($"设备: {text.Trim()}");
-        });
-    }
-
     private void OnConnectionChanged(object? sender, EventArgs e)
     {
-        if (IsUpgrading && !_isReconnecting && !_serial.IsOpen) _upgradeCancellation?.Cancel();
+        Application.Current.Dispatcher.Invoke(UpdateConnectionState);
+        if (IsUpgrading && !_serial.IsOpen) _upgradeCancellation?.Cancel();
+    }
+
+    private void UpdateConnectionState()
+    {
+        IsSerialConnected = _serial.IsOpen;
+        ConnectionStatus = IsSerialConnected
+            ? "串口已连接。请先通过“串口参数”页完成设备的升级准备。"
+            : "请先在“串口参数”页打开串口。";
     }
 
     private void AddLog(string message, bool isError = false)
@@ -302,7 +196,6 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
 
     public void Dispose()
     {
-        _serial.DataReceived -= OnDataReceived;
         _serial.ConnectionChanged -= OnConnectionChanged;
         _upgradeCancellation?.Cancel();
     }
