@@ -1,0 +1,37 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Colors.Light.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <SolidColorBrush x:Key="MainBgBrush" Color="#FFF8FA"/>
+    <SolidColorBrush x:Key="ActivityBarBgBrush" Color="#F8E8EE"/>
+    <SolidColorBrush x:Key="SidebarBgBrush" Color="#FFF0F4"/>
+    <SolidColorBrush x:Key="TitleBarBgBrush" Color="#FFF9FB"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="#E8CBD5"/>
+    <SolidColorBrush x:Key="AccentBrush" Color="#D56B8A"/>
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#B95775"/>
+    <SolidColorBrush x:Key="SendButtonBrush" Color="#D56B8A"/>
+    <SolidColorBrush x:Key="SendButtonHoverBrush" Color="#B95775"/>
+    <SolidColorBrush x:Key="ForegroundBrush" Color="#3B2930"/>
+    <SolidColorBrush x:Key="ForegroundInactiveBrush" Color="#8C6F79"/>
+    <SolidColorBrush x:Key="RxTextBrush" Color="#2C9A83"/>
+    <SolidColorBrush x:Key="TxTextBrush" Color="#B95775"/>
+    <SolidColorBrush x:Key="InputBgBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="InputBorderNormalBrush" Color="#E2BAC8"/>
+    <SolidColorBrush x:Key="DropdownBgBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="DropdownBorderBrush" Color="#E2BAC8"/>
+    <SolidColorBrush x:Key="DropdownHoverBrush" Color="#FDE8EF"/>
+    <SolidColorBrush x:Key="DropdownSelectedBrush" Color="#F8D5E0"/>
+    <SolidColorBrush x:Key="SelectionBrush" Color="#F5C8D7"/>
+    <SolidColorBrush x:Key="ActivityIconBrush" Color="#A25E73"/>
+    <SolidColorBrush x:Key="ChartBackgroundBrush" Color="#FFFCFD"/>
+    <SolidColorBrush x:Key="ChartBorderBrush" Color="#E8CBD5"/>
+    <SolidColorBrush x:Key="ChartGridBrush" Color="#F1DDE4"/>
+    <SolidColorBrush x:Key="ChartTextBrush" Color="#8C6F79"/>
+    <SolidColorBrush x:Key="ChartTargetBrush" Color="#C98739"/>
+    <SolidColorBrush x:Key="ChartActualBrush" Color="#2C9A83"/>
+    <SolidColorBrush x:Key="ScrollbarTrackBrush" Color="#00F8E8EE"/>
+    <SolidColorBrush x:Key="ScrollbarThumbBrush" Color="#D9A8B8"/>
+    <SolidColorBrush x:Key="ScrollbarThumbHoverBrush" Color="#C77D94"/>
+    <FontFamily x:Key="ThemeFontFamily">Segoe Print, Microsoft YaHei UI</FontFamily>
+</ResourceDictionary>

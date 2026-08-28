@@ -95,8 +95,9 @@
                       SelectedValuePath="Content"
                       SelectedValue="{Binding SelectedTheme, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                 <ComboBoxItem Content="深色"/>
-                <ComboBoxItem Content="浅色"/>
-                <ComboBoxItem Content="跟随系统"/>
+                  <ComboBoxItem Content="浅色"/>
+                  <ComboBoxItem Content="Lumi"/>
+                  <ComboBoxItem Content="跟随系统"/>
             </ComboBox>
         </StackPanel>
     </ScrollViewer>

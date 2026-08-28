@@ -56,6 +56,7 @@
     <Style x:Key="LabelStyle" TargetType="TextBlock">
         <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
         <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontFamily" Value="{DynamicResource ThemeFontFamily}"/>
         <Setter Property="Margin" Value="0,8,0,2"/>
     </Style>
 
@@ -63,6 +64,7 @@
         <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="FontFamily" Value="{DynamicResource ThemeFontFamily}"/>
         <Setter Property="Margin" Value="0,0,0,10"/>
     </Style>
 
@@ -150,7 +152,7 @@
     <!-- ===== 暗色滚动条 ===== -->
     <Style x:Key="DarkScrollBar" TargetType="ScrollBar">
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Width" Value="10"/>
+        <Setter Property="Width" Value="8"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ScrollBar">
@@ -183,7 +185,7 @@
         </Setter>
         <Style.Triggers>
             <Trigger Property="Orientation" Value="Horizontal">
-                <Setter Property="Height" Value="10"/>
+                <Setter Property="Height" Value="8"/>
                 <Setter Property="Width" Value="Auto"/>
             </Trigger>
         </Style.Triggers>
@@ -207,7 +209,7 @@
                        Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
                        Value="{TemplateBinding VerticalOffset}"
                        ViewportSize="{TemplateBinding ViewportHeight}"
-                       Width="10"
+                       Width="8"
                        HorizontalAlignment="Right"
                        Style="{StaticResource DarkScrollBar}"/>
             <ScrollBar x:Name="PART_HorizontalScrollBar"
@@ -219,7 +221,7 @@
                        Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"
                        Value="{TemplateBinding HorizontalOffset}"
                        ViewportSize="{TemplateBinding ViewportWidth}"
-                       Height="10"
+                       Height="8"
                        VerticalAlignment="Bottom"
                        Style="{StaticResource DarkScrollBar}"/>
         </Grid>

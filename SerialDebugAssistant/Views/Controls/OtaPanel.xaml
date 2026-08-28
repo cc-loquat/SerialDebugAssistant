@@ -34,6 +34,18 @@
                 <TextBlock Text="{Binding FirmwareName}" Foreground="{DynamicResource ForegroundBrush}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
                 <TextBlock Text="{Binding FirmwareSize}" Margin="0,5,0,0" Foreground="{DynamicResource ForegroundInactiveBrush}" FontSize="11"/>
                 <TextBlock Text="{Binding FirmwareCrc32}" Margin="0,3,0,0" Foreground="{DynamicResource ForegroundInactiveBrush}" FontFamily="Cascadia Code, Consolas" FontSize="11"/>
+                <Border Margin="0,12,0,0" Padding="10,8" Background="{DynamicResource MainBgBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="3">
+                    <StackPanel>
+                        <TextBlock Text="协议提醒" Foreground="{DynamicResource ForegroundBrush}" FontWeight="SemiBold" FontSize="11"/>
+                        <TextBlock Margin="0,5,0,0" Foreground="{DynamicResource ForegroundInactiveBrush}" FontSize="10" TextWrapping="Wrap">
+                            <Run Text="这不是通用标准，设备 Bootloader 必须按本格式接收："/>
+                            <LineBreak/>
+                            <Run Text="FWUP (46 57 55 50) + 长度 4 字节小端 + CRC32 4 字节小端 + bin 原始数据" FontFamily="Cascadia Code, Consolas"/>
+                            <LineBreak/>
+                            <Run Text="FWUP 不带换行；数据按 512 字节分块发送。请确认设备端协议一致。"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
 
                 </StackPanel>
                 </ScrollViewer>

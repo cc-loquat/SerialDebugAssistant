@@ -6,7 +6,7 @@
         Title="{Binding AppVersion}" Height="640" Width="960"
         MinWidth="720" MinHeight="480"
         Background="{DynamicResource MainBgBrush}"
-        FontFamily="Microsoft YaHei UI, Segoe UI"
+        FontFamily="{DynamicResource ThemeFontFamily}"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         AllowsTransparency="False"

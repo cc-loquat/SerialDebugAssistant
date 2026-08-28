@@ -57,7 +57,7 @@
     <!-- 滚动条颜色 -->
     <Color x:Key="ScrollbarThumbColor">#424242</Color>
     <Color x:Key="ScrollbarThumbHoverColor">#555555</Color>
-    <Color x:Key="ScrollbarTrackColor">#1E1E1E</Color>
+    <Color x:Key="ScrollbarTrackColor">#001E1E1E</Color>
 
     <SolidColorBrush x:Key="ScrollbarThumbBrush" Color="{StaticResource ScrollbarThumbColor}"/>
     <SolidColorBrush x:Key="ScrollbarThumbHoverBrush" Color="{StaticResource ScrollbarThumbHoverColor}"/>
@@ -87,6 +87,7 @@
     <Color x:Key="ChartTextColor">#8B95A3</Color>
     <Color x:Key="ChartTargetColor">#E5A84B</Color>
     <Color x:Key="ChartActualColor">#4CC9A4</Color>
+    <FontFamily x:Key="ThemeFontFamily">Microsoft YaHei UI, Segoe UI</FontFamily>
     <SolidColorBrush x:Key="ChartBackgroundBrush" Color="{StaticResource ChartBackgroundColor}"/>
     <SolidColorBrush x:Key="ChartBorderBrush" Color="{StaticResource ChartBorderColor}"/>
     <SolidColorBrush x:Key="ChartGridBrush" Color="{StaticResource ChartGridColor}"/>
