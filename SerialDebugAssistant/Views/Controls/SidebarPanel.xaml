@@ -96,6 +96,9 @@
                       ItemsSource="{Binding ThemeOptions}"
                       SelectedItem="{Binding SelectedTheme, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       SelectionChanged="ThemeComboBox_SelectionChanged"/>
+            <TextBlock Text="{Binding StatusMessage}" Margin="0,6,0,0"
+                       Foreground="{DynamicResource ForegroundInactiveBrush}" FontSize="11"
+                       TextWrapping="Wrap"/>
         </StackPanel>
     </ScrollViewer>
 </UserControl>
