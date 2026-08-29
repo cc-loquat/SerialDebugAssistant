@@ -1,4 +1,5 @@
 using System.Windows.Controls;
+using System.Windows;
 using SerialDebugAssistant.ViewModels;
 
 namespace SerialDebugAssistant.Views.Controls;
@@ -9,7 +10,8 @@ public partial class SidebarPanel : UserControl
 
     private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (DataContext is MainViewModel vm && ThemeComboBox.SelectedItem is string theme && vm.SelectedTheme != theme)
-            vm.SelectedTheme = theme;
+        if (ThemeComboBox.SelectedItem is not string theme) return;
+        var vm = DataContext as MainViewModel ?? Window.GetWindow(this)?.DataContext as MainViewModel;
+        if (vm is not null && vm.SelectedTheme != theme) vm.SelectedTheme = theme;
     }
 }
