@@ -181,7 +181,12 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
     }
 
     [RelayCommand(CanExecute = nameof(CanStopUpgrade))]
-    private void StopUpgrade() => _upgradeCancellation?.Cancel();
+    private async Task StopUpgrade()
+    {
+        if (!IsUpgrading) return;
+        try { await _serial.SendAsync(new byte[] { 0x18 }); } catch { }
+        _upgradeCancellation?.Cancel();
+    }
 
     [RelayCommand]
     private void ClearLogs() => UpgradeLogs.Clear();
@@ -225,21 +230,27 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
             token.ThrowIfCancellationRequested();
             var offset = sequence * chunkSize;
             var count = Math.Min(chunkSize, firmware.Length - offset);
-            var packet = new byte[8 + count];
-            BitConverter.GetBytes((ushort)sequence).CopyTo(packet, 0);
-            BitConverter.GetBytes((ushort)count).CopyTo(packet, 2);
-            Buffer.BlockCopy(firmware, offset, packet, 4, count);
-            BitConverter.GetBytes(CalculateCrc32(firmware.AsSpan(offset, count).ToArray())).CopyTo(packet, 4 + count);
-            while (true)
+            var packet = new byte[10 + count];
+            packet[0] = 0xA5;
+            packet[1] = 0x5A;
+            BitConverter.GetBytes((ushort)sequence).CopyTo(packet, 2);
+            BitConverter.GetBytes((ushort)count).CopyTo(packet, 4);
+            Buffer.BlockCopy(firmware, offset, packet, 6, count);
+            BitConverter.GetBytes(CalculateCrc32(firmware.AsSpan(offset, count).ToArray())).CopyTo(packet, 6 + count);
+            var attempts = 0;
+            while (attempts++ < 5)
             {
                 token.ThrowIfCancellationRequested();
                 await _serial.SendAsync(packet);
-                var response = await WaitFwp2ResponseAsync(TimeSpan.FromSeconds(5), token);
+                byte[] response;
+                try { response = await WaitFwp2ResponseAsync(TimeSpan.FromSeconds(3), token); }
+                catch (TimeoutException) { continue; }
                 var responseSequence = (ushort)(response[1] | (response[2] << 8));
                 if (response[0] == 0x06 && responseSequence == sequence) break;
                 if (response[0] == 0x15 && responseSequence == sequence) continue;
                 throw new InvalidOperationException($"FWP3 收到无效响应 0x{response[0]:X2}，序号 {responseSequence}。");
             }
+            if (attempts > 5) throw new TimeoutException($"FWP3 第 {sequence} 包重试 5 次仍未成功。");
             var sent = offset + count;
             Progress = (int)(sent * 100L / firmware.Length);
             ProgressText = $"{Progress}%";

@@ -76,7 +76,7 @@
                             <Run Text="这不是通用标准，设备 Bootloader 必须按本格式接收："/><LineBreak/>
                             <Run Text="FWP3（自定义协议，所有整数均为小端序）："/><LineBreak/>
                             <Run Text="头：ASCII FWP3（4 字节）+ 版本号 uint32（4）+ 固件长度 uint32（4）+ 总 CRC32 uint32（4）。"/><LineBreak/>
-                            <Run Text="包：序号 uint16（2，从 0 开始）+ 长度 uint16（2，1~256）+ 数据（最多 256）+ 包 CRC32 uint32（4）。"/><LineBreak/>
+                            <Run Text="包：A5 5A（2 字节起始标记）+ 序号 uint16（2，从 0 开始）+ 长度 uint16（2，1~256）+ 数据（最多 256）+ 包 CRC32 uint32（4）。"/><LineBreak/>
                             <Run Text="设备回复 ACK=06+序号(2)，NACK=15+期望序号(2)，CAN=18；工具等待 ACK 超时 3 秒，NACK/超时重发当前包，最多 5 次；取消发送 18 18。"/><LineBreak/>
                             <Run Text="设备校验总 CRC32 成功后才写入完成并复位。请按以上字节格式实现 Bootloader。"/><LineBreak/>
                         </TextBlock>
