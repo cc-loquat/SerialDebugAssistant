@@ -218,11 +218,16 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
     private async Task SendFwp3Async(byte[] firmware, CancellationToken token)
     {
         StageText = "正在传输固件";
-        await _serial.SendAsync(Encoding.ASCII.GetBytes("FWP3"));
         if (!uint.TryParse(FirmwareVersion, out var version)) throw new InvalidOperationException("版本号必须是 0 到 4294967295 的整数。");
-        await _serial.SendAsync(BitConverter.GetBytes(version));
-        await _serial.SendAsync(BitConverter.GetBytes(firmware.Length));
-        await _serial.SendAsync(BitConverter.GetBytes(CalculateCrc32(firmware)));
+        var magic = Encoding.ASCII.GetBytes("FWP3");
+        if (magic.Length != 4) throw new InvalidOperationException("FWP3 标识长度异常。");
+        var header = new byte[16];
+        Buffer.BlockCopy(magic, 0, header, 0, 4);
+        BitConverter.GetBytes(version).CopyTo(header, 4);
+        BitConverter.GetBytes((uint)firmware.Length).CopyTo(header, 8);
+        BitConverter.GetBytes(CalculateCrc32(firmware)).CopyTo(header, 12);
+        await _serial.SendAsync(header);
+        AddLog($"FWP3 头 [{ToHex(header)}]");
         const int chunkSize = 256;
         var total = (firmware.Length + chunkSize - 1) / chunkSize;
         for (var sequence = 0; sequence < total; sequence++)
@@ -237,6 +242,8 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
             BitConverter.GetBytes((ushort)count).CopyTo(packet, 4);
             Buffer.BlockCopy(firmware, offset, packet, 6, count);
             BitConverter.GetBytes(CalculateCrc32(firmware.AsSpan(offset, count).ToArray())).CopyTo(packet, 6 + count);
+            var packetCrc = CalculateCrc32(firmware.AsSpan(offset, count).ToArray());
+            AddLog($"包 {sequence}: 长度 {count}，CRC32 {packetCrc:X8}");
             var attempts = 0;
             while (attempts++ < 5)
             {
@@ -244,7 +251,8 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
                 await _serial.SendAsync(packet);
                 byte[] response;
                 try { response = await WaitFwp2ResponseAsync(TimeSpan.FromSeconds(3), token); }
-                catch (TimeoutException) { continue; }
+                catch (TimeoutException) { AddLog($"包 {sequence} 等待 ACK 超时，第 {attempts} 次重试", true); continue; }
+                AddLog($"响应 [{ToHex(response)}]，第 {attempts} 次发送");
                 var responseSequence = (ushort)(response[1] | (response[2] << 8));
                 if (response[0] == 0x06 && responseSequence == sequence) break;
                 if (response[0] == 0x15 && responseSequence == sequence) continue;
@@ -384,6 +392,8 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
         }
         return ~crc;
     }
+
+    private static string ToHex(byte[] data) => string.Join(" ", data.Select(value => value.ToString("X2")));
 
     public void Dispose()
     {
