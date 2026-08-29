@@ -65,6 +65,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     public OtaViewModel OtaViewModel { get; }
 
     public ObservableCollection<string> AvailablePorts => _availablePorts;
+    public IReadOnlyList<string> ThemeOptions { get; } = new[] { "深色", "浅色", "Lumi", "跟随系统" };
 
     public string ConnectButtonText => IsConnected ? "关闭" : "打开";
 

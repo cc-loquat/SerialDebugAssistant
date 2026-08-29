@@ -44,22 +44,11 @@ public static class ThemeService
         var source = new Uri(sourceName, UriKind.Relative);
         var dictionaries = Application.Current.Resources.MergedDictionaries;
 
-        var themeIndex = -1;
-        for (var i = 0; i < dictionaries.Count; i++)
-        {
-            var uri = dictionaries[i].Source?.OriginalString ?? string.Empty;
-            if (uri.EndsWith("/Themes/Colors.xaml", StringComparison.OrdinalIgnoreCase) ||
-                uri.EndsWith("/Themes/Colors.Light.xaml", StringComparison.OrdinalIgnoreCase) ||
-                uri.EndsWith("/Themes/Colors.Lumi.xaml", StringComparison.OrdinalIgnoreCase) ||
-                uri is "Themes/Colors.xaml" or "Themes/Colors.Light.xaml" or "Themes/Colors.Lumi.xaml")
-            {
-                themeIndex = i;
-                break;
-            }
-        }
         var themeDictionary = new ResourceDictionary { Source = source };
-        if (themeIndex >= 0) dictionaries[themeIndex] = themeDictionary;
-        else dictionaries.Insert(0, themeDictionary);
+        var oldThemes = dictionaries.Where(IsThemeDictionary).ToList();
+        var insertIndex = oldThemes.Count > 0 ? dictionaries.IndexOf(oldThemes[0]) : 0;
+        foreach (var oldTheme in oldThemes) dictionaries.Remove(oldTheme);
+        dictionaries.Insert(Math.Clamp(insertIndex, 0, dictionaries.Count), themeDictionary);
 
         if (!save) return;
 
@@ -72,6 +61,12 @@ public static class ThemeService
         {
             // Theme persistence is optional.
         }
+    }
+
+    private static bool IsThemeDictionary(ResourceDictionary dictionary)
+    {
+        var uri = dictionary.Source?.OriginalString ?? string.Empty;
+        return uri.Contains("Colors.xaml", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool UsesLightSystemTheme()
