@@ -62,8 +62,8 @@
 
             <controls:ActivityBar Grid.Column="0" Width="48" x:Name="ActivityBarCtrl"/>
             <Border Grid.Column="1" Width="1" Background="{DynamicResource BorderBrush}"/>
-            <controls:SidebarPanel Grid.Column="2" Width="240" x:Name="SerialSidebar" Visibility="Visible"/>
-            <controls:PidSidebar Grid.Column="2" Width="240" x:Name="PidSidebarCtrl" Visibility="Collapsed"
+            <controls:SidebarPanel Grid.Column="2" Width="270" x:Name="SerialSidebar" Visibility="Visible"/>
+            <controls:PidSidebar Grid.Column="2" Width="270" x:Name="PidSidebarCtrl" Visibility="Collapsed"
                                 DataContext="{Binding PidViewModel}"/>
             <Border Grid.Column="3" Width="1" Background="{DynamicResource BorderBrush}"/>
             <controls:DataDisplayPanel Grid.Column="4" x:Name="SerialMainPanel" Visibility="Visible"/>

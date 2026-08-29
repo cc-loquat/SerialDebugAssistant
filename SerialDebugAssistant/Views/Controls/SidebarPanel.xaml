@@ -5,7 +5,7 @@
              Background="{DynamicResource SidebarBgBrush}">
     <ScrollViewer VerticalScrollBarVisibility="Auto" Background="{DynamicResource SidebarBgBrush}"
                   Style="{DynamicResource DarkScrollViewerStyle}">
-        <StackPanel Margin="16,12">
+        <StackPanel Margin="16,12,28,12">
             <TextBlock Text="串口参数" Style="{DynamicResource SectionHeaderStyle}"/>
 
             <TextBlock Text="端口" Style="{DynamicResource LabelStyle}"/>
