@@ -47,8 +47,15 @@ public partial class MainViewModel : ViewModelBase, IDisposable
 
     partial void OnSelectedThemeChanged(string value)
     {
-        ThemeService.Apply(value);
-        StatusMessage = $"已应用主题：{value}";
+        try
+        {
+            ThemeService.Apply(value);
+            StatusMessage = $"已应用主题：{value}";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"主题应用失败：{ex.Message}";
+        }
     }
 
     public bool ReceiveAsAscii { get => !ReceiveAsHex; set => ReceiveAsHex = !value; }
