@@ -115,7 +115,7 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
                 await SendFwp3Async(firmware, token);
             else if (SelectedProtocol == "YModem-1K")
                 await SendYModemAsync(firmware, infoName: Path.GetFileName(FirmwarePath), token);
-            else if (false)
+            else if (SelectedProtocol == "自定义 FWUP")
             {
                 var crc = CalculateCrc32(firmware);
                 await _serial.SendAsync(Encoding.ASCII.GetBytes("FWUP"));
