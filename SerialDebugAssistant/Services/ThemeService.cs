@@ -44,15 +44,22 @@ public static class ThemeService
         var source = new Uri(sourceName, UriKind.Relative);
         var dictionaries = Application.Current.Resources.MergedDictionaries;
 
+        var themeIndex = -1;
         for (var i = 0; i < dictionaries.Count; i++)
         {
-            var uri = dictionaries[i].Source?.OriginalString;
-            if (uri is "Themes/Colors.xaml" or "Themes/Colors.Light.xaml" or "Themes/Colors.Lumi.xaml")
+            var uri = dictionaries[i].Source?.OriginalString ?? string.Empty;
+            if (uri.EndsWith("/Themes/Colors.xaml", StringComparison.OrdinalIgnoreCase) ||
+                uri.EndsWith("/Themes/Colors.Light.xaml", StringComparison.OrdinalIgnoreCase) ||
+                uri.EndsWith("/Themes/Colors.Lumi.xaml", StringComparison.OrdinalIgnoreCase) ||
+                uri is "Themes/Colors.xaml" or "Themes/Colors.Light.xaml" or "Themes/Colors.Lumi.xaml")
             {
-                dictionaries[i] = new ResourceDictionary { Source = source };
+                themeIndex = i;
                 break;
             }
         }
+        var themeDictionary = new ResourceDictionary { Source = source };
+        if (themeIndex >= 0) dictionaries[themeIndex] = themeDictionary;
+        else dictionaries.Insert(0, themeDictionary);
 
         if (!save) return;
 
