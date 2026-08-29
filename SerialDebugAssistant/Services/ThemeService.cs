@@ -66,7 +66,10 @@ public static class ThemeService
     private static bool IsThemeDictionary(ResourceDictionary dictionary)
     {
         var uri = dictionary.Source?.OriginalString ?? string.Empty;
-        return uri.Contains("Colors.xaml", StringComparison.OrdinalIgnoreCase);
+        return uri.EndsWith("Themes/Colors.xaml", StringComparison.OrdinalIgnoreCase) ||
+               uri.EndsWith("Themes/Colors.Light.xaml", StringComparison.OrdinalIgnoreCase) ||
+               uri.EndsWith("Themes/Colors.Lumi.xaml", StringComparison.OrdinalIgnoreCase) ||
+               uri is "Colors.xaml" or "Colors.Light.xaml" or "Colors.Lumi.xaml";
     }
 
     private static bool UsesLightSystemTheme()
