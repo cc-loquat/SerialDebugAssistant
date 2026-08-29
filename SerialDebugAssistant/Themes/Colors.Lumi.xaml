@@ -33,5 +33,4 @@
     <SolidColorBrush x:Key="ScrollbarTrackBrush" Color="#00F8E8EE"/>
     <SolidColorBrush x:Key="ScrollbarThumbBrush" Color="#D9A8B8"/>
     <SolidColorBrush x:Key="ScrollbarThumbHoverBrush" Color="#C77D94"/>
-    <FontFamily x:Key="ThemeFontFamily">Segoe Print, Microsoft YaHei UI</FontFamily>
 </ResourceDictionary>

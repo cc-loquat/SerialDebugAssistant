@@ -21,6 +21,8 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
     private CancellationTokenSource? _upgradeCancellation;
     private readonly object _ymodemLock = new();
     private TaskCompletionSource<byte>? _ymodemSignal;
+    private readonly List<byte> _fwp2ResponseBuffer = new();
+    private TaskCompletionSource<byte[]>? _fwp2ResponseWaiter;
 
     [ObservableProperty] private bool _isSerialConnected;
     [ObservableProperty] private string _connectionStatus = "请先在“串口参数”页打开串口。";
@@ -40,7 +42,7 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
     [ObservableProperty] private string _selectedProtocol = "自定义 FWUP";
 
     public ObservableCollection<string> UpgradeLogs { get; } = new();
-    public IReadOnlyList<string> ProtocolOptions { get; } = new[] { "自定义 FWUP", "YModem-1K" };
+    public IReadOnlyList<string> ProtocolOptions { get; } = new[] { "自定义 FWUP", "FWP2", "YModem-1K" };
     public bool CanStartUpgrade => IsFirmwareValid && IsSerialConnected && !IsUpgrading;
     public bool CanStopUpgrade => IsUpgrading;
 
@@ -108,7 +110,9 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
         {
             if (!_serial.IsOpen) throw new InvalidOperationException("串口未打开，请先在“串口参数”页连接设备。");
             StageText = "正在传输固件";
-            if (SelectedProtocol == "YModem-1K")
+            if (SelectedProtocol == "FWP2")
+                await SendFwp2Async(firmware, token);
+            else if (SelectedProtocol == "YModem-1K")
                 await SendYModemAsync(firmware, infoName: Path.GetFileName(FirmwarePath), token);
             else
             {
@@ -119,6 +123,7 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
                 AddLog($"已发送 FWUP 头，长度 {firmware.Length:N0}，CRC32 {crc:X8}");
             }
 
+            if (SelectedProtocol != "自定义 FWUP") return;
             var stopwatch = Stopwatch.StartNew();
             const int chunkSize = 512;
             for (var offset = 0; offset < firmware.Length; offset += chunkSize)
@@ -181,6 +186,67 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
     private void OnSerialDataReceived(object? sender, SerialDebugAssistant.Services.DataReceivedEventArgs e)
     {
         if (IsUpgrading && SelectedProtocol == "YModem-1K") OnYModemData(e.Data);
+        if (IsUpgrading && SelectedProtocol == "FWP2")
+        {
+            lock (_fwp2ResponseBuffer)
+            {
+                _fwp2ResponseBuffer.AddRange(e.Data);
+                if (_fwp2ResponseWaiter is { } waiter && _fwp2ResponseBuffer.Count >= 3)
+                {
+                    var response = _fwp2ResponseBuffer.Take(3).ToArray();
+                    _fwp2ResponseBuffer.RemoveRange(0, 3);
+                    waiter.TrySetResult(response);
+                }
+            }
+        }
+    }
+
+    private async Task SendFwp2Async(byte[] firmware, CancellationToken token)
+    {
+        StageText = "正在传输固件";
+        await _serial.SendAsync(Encoding.ASCII.GetBytes("FWP2"));
+        await _serial.SendAsync(BitConverter.GetBytes(firmware.Length));
+        await _serial.SendAsync(BitConverter.GetBytes(CalculateCrc32(firmware)));
+        const int chunkSize = 256;
+        var total = (firmware.Length + chunkSize - 1) / chunkSize;
+        for (var sequence = 0; sequence < total; sequence++)
+        {
+            token.ThrowIfCancellationRequested();
+            var offset = sequence * chunkSize;
+            var count = Math.Min(chunkSize, firmware.Length - offset);
+            var packet = new byte[8 + count];
+            BitConverter.GetBytes((ushort)sequence).CopyTo(packet, 0);
+            BitConverter.GetBytes((ushort)count).CopyTo(packet, 2);
+            Buffer.BlockCopy(firmware, offset, packet, 4, count);
+            BitConverter.GetBytes(CalculateCrc32(firmware.AsSpan(offset, count).ToArray())).CopyTo(packet, 4 + count);
+            while (true)
+            {
+                token.ThrowIfCancellationRequested();
+                await _serial.SendAsync(packet);
+                var response = await WaitFwp2ResponseAsync(TimeSpan.FromSeconds(5), token);
+                var responseSequence = (ushort)(response[1] | (response[2] << 8));
+                if (response[0] == 0x06 && responseSequence == sequence) break;
+                if (response[0] == 0x15 && responseSequence == sequence) continue;
+                throw new InvalidOperationException($"FWP2 收到无效响应 0x{response[0]:X2}，序号 {responseSequence}。");
+            }
+            var sent = offset + count;
+            Progress = (int)(sent * 100L / firmware.Length);
+            ProgressText = $"{Progress}%";
+            TransferDetail = $"已传输 {sent / 1024d:F1} / {firmware.Length / 1024d:F1} KB";
+        }
+        AddLog($"FWP2 发送完成，共 {total} 包。");
+    }
+
+    private async Task<byte[]> WaitFwp2ResponseAsync(TimeSpan timeout, CancellationToken token)
+    {
+        lock (_fwp2ResponseBuffer) _fwp2ResponseWaiter = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var waiter = _fwp2ResponseWaiter;
+        using var registration = token.Register(() => waiter.TrySetCanceled(token));
+        var completed = await Task.WhenAny(waiter.Task, Task.Delay(timeout, token));
+        if (completed != waiter.Task) { token.ThrowIfCancellationRequested(); throw new TimeoutException("FWP2 等待设备响应超时。"); }
+        var result = await waiter.Task;
+        lock (_fwp2ResponseBuffer) _fwp2ResponseWaiter = null;
+        return result;
     }
 
     private async Task SendYModemAsync(byte[] firmware, string infoName, CancellationToken token)
