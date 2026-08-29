@@ -19,6 +19,8 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
     private const int MaxFirmwareSize = 0xE0000;
     private readonly ISerialService _serial;
     private CancellationTokenSource? _upgradeCancellation;
+    private readonly object _ymodemLock = new();
+    private TaskCompletionSource<byte>? _ymodemSignal;
 
     [ObservableProperty] private bool _isSerialConnected;
     [ObservableProperty] private string _connectionStatus = "请先在“串口参数”页打开串口。";
@@ -35,14 +37,17 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
     [ObservableProperty] private bool _isSuccess;
     [ObservableProperty] private bool _isFailure;
     [ObservableProperty] private bool _isFirmwareValid;
+    [ObservableProperty] private string _selectedProtocol = "自定义 FWUP";
 
     public ObservableCollection<string> UpgradeLogs { get; } = new();
+    public IReadOnlyList<string> ProtocolOptions { get; } = new[] { "自定义 FWUP", "YModem-1K" };
     public bool CanStartUpgrade => IsFirmwareValid && IsSerialConnected && !IsUpgrading;
     public bool CanStopUpgrade => IsUpgrading;
 
     public OtaViewModel(ISerialService serial)
     {
         _serial = serial;
+        _serial.DataReceived += OnSerialDataReceived;
         _serial.ConnectionChanged += OnConnectionChanged;
         UpdateConnectionState();
     }
@@ -103,12 +108,16 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
         {
             if (!_serial.IsOpen) throw new InvalidOperationException("串口未打开，请先在“串口参数”页连接设备。");
             StageText = "正在传输固件";
-            var crc = CalculateCrc32(firmware);
-            var header = Encoding.ASCII.GetBytes("FWUP");
-            await _serial.SendAsync(header);
-            await _serial.SendAsync(BitConverter.GetBytes(firmware.Length));
-            await _serial.SendAsync(BitConverter.GetBytes(crc));
-            AddLog($"已发送 FWUP 头，长度 {firmware.Length:N0}，CRC32 {crc:X8}");
+            if (SelectedProtocol == "YModem-1K")
+                await SendYModemAsync(firmware, infoName: Path.GetFileName(FirmwarePath), token);
+            else
+            {
+                var crc = CalculateCrc32(firmware);
+                await _serial.SendAsync(Encoding.ASCII.GetBytes("FWUP"));
+                await _serial.SendAsync(BitConverter.GetBytes(firmware.Length));
+                await _serial.SendAsync(BitConverter.GetBytes(crc));
+                AddLog($"已发送 FWUP 头，长度 {firmware.Length:N0}，CRC32 {crc:X8}");
+            }
 
             var stopwatch = Stopwatch.StartNew();
             const int chunkSize = 512;
@@ -169,6 +178,100 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
         if (IsUpgrading && !_serial.IsOpen) _upgradeCancellation?.Cancel();
     }
 
+    private void OnSerialDataReceived(object? sender, SerialDebugAssistant.Services.DataReceivedEventArgs e)
+    {
+        if (IsUpgrading && SelectedProtocol == "YModem-1K") OnYModemData(e.Data);
+    }
+
+    private async Task SendYModemAsync(byte[] firmware, string infoName, CancellationToken token)
+    {
+        StageText = "等待 YModem";
+        StatusDetail = "等待设备发送 C。";
+        await WaitYModemByteAsync(0x43, TimeSpan.FromSeconds(15), token);
+        await SendYModemPacketAsync(0, BuildHeader(infoName, firmware.Length), token);
+        await WaitYModemByteAsync(0x06, TimeSpan.FromSeconds(5), token);
+        await WaitYModemByteAsync(0x43, TimeSpan.FromSeconds(5), token);
+
+        StageText = "正在传输固件";
+        const int chunkSize = 1024;
+        byte packet = 1;
+        for (var offset = 0; offset < firmware.Length; offset += chunkSize, packet++)
+        {
+            token.ThrowIfCancellationRequested();
+            var data = new byte[chunkSize];
+            Array.Fill(data, (byte)0x1A);
+            Buffer.BlockCopy(firmware, offset, data, 0, Math.Min(chunkSize, firmware.Length - offset));
+            await SendYModemPacketAsync(packet, data, token);
+            await WaitYModemByteAsync(0x06, TimeSpan.FromSeconds(5), token);
+            var sent = Math.Min(offset + chunkSize, firmware.Length);
+            Progress = (int)(sent * 100L / firmware.Length);
+            ProgressText = $"{Progress}%";
+            TransferDetail = $"已传输 {sent / 1024d:F1} / {firmware.Length / 1024d:F1} KB";
+        }
+        await _serial.SendAsync(new byte[] { 0x04 });
+        await WaitYModemByteAsync(0x15, TimeSpan.FromSeconds(5), token);
+        await _serial.SendAsync(new byte[] { 0x04 });
+        await WaitYModemByteAsync(0x06, TimeSpan.FromSeconds(5), token);
+        await SendYModemPacketAsync(0, new byte[128], token, soh: true);
+        await WaitYModemByteAsync(0x06, TimeSpan.FromSeconds(5), token);
+        AddLog("YModem-1K 发送完成。");
+    }
+
+    private async Task SendYModemPacketAsync(byte number, byte[] data, CancellationToken token, bool soh = false)
+    {
+        var packet = new byte[(soh ? 128 : 1024) + 5];
+        packet[0] = soh ? (byte)0x01 : (byte)0x02;
+        packet[1] = number;
+        packet[2] = (byte)~number;
+        Array.Copy(data, 0, packet, 3, Math.Min(data.Length, packet.Length - 5));
+        var crc = CalculateCrc16(packet, 1, packet.Length - 3);
+        packet[^2] = (byte)(crc >> 8);
+        packet[^1] = (byte)crc;
+        await _serial.SendAsync(packet);
+    }
+
+    private Task<byte> WaitYModemByteAsync(byte expected, TimeSpan timeout, CancellationToken token)
+    {
+        _ymodemSignal = new TaskCompletionSource<byte>(TaskCreationOptions.RunContinuationsAsynchronously);
+        token.Register(() => _ymodemSignal.TrySetCanceled(token));
+        return WaitSignalAsync(expected, timeout, token);
+    }
+
+    private async Task<byte> WaitSignalAsync(byte expected, TimeSpan timeout, CancellationToken token)
+    {
+        var signal = _ymodemSignal!;
+        var completed = await Task.WhenAny(signal.Task, Task.Delay(timeout, token));
+        if (completed != signal.Task) { token.ThrowIfCancellationRequested(); throw new TimeoutException($"YModem 等待 0x{expected:X2} 超时。"); }
+        var value = await signal.Task;
+        if (value != expected) throw new InvalidOperationException($"YModem 收到 0x{value:X2}，预期 0x{expected:X2}。");
+        return value;
+    }
+
+    private void OnYModemData(byte[] data)
+    {
+        foreach (var value in data)
+            if (_ymodemSignal is { } signal && !signal.Task.IsCompleted) signal.TrySetResult(value);
+    }
+
+    private static byte[] BuildHeader(string name, int length)
+    {
+        var bytes = new byte[1024];
+        var text = Encoding.ASCII.GetBytes($"{name}\0{length}\0");
+        Array.Copy(text, bytes, Math.Min(text.Length, bytes.Length));
+        return bytes;
+    }
+
+    private static ushort CalculateCrc16(byte[] data, int offset, int length)
+    {
+        ushort crc = 0;
+        for (var i = offset; i < offset + length; i++)
+        {
+            crc ^= (ushort)(data[i] << 8);
+            for (var bit = 0; bit < 8; bit++) crc = (ushort)((crc & 0x8000) != 0 ? (crc << 1) ^ 0x1021 : crc << 1);
+        }
+        return crc;
+    }
+
     private void UpdateConnectionState()
     {
         IsSerialConnected = _serial.IsOpen;
@@ -197,6 +300,7 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
     public void Dispose()
     {
         _serial.ConnectionChanged -= OnConnectionChanged;
+        _serial.DataReceived -= OnSerialDataReceived;
         _upgradeCancellation?.Cancel();
     }
 }

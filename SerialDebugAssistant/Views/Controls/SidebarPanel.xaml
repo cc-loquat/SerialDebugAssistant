@@ -92,8 +92,10 @@
             <TextBlock Text="外观" Style="{DynamicResource SectionHeaderStyle}"/>
             <TextBlock Text="主题" Style="{DynamicResource LabelStyle}"/>
             <ComboBox Style="{DynamicResource ParameterComboBoxStyle}"
+                      x:Name="ThemeComboBox"
                       ItemsSource="{Binding ThemeOptions}"
-                      SelectedItem="{Binding SelectedTheme, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                      SelectedItem="{Binding SelectedTheme, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      SelectionChanged="ThemeComboBox_SelectionChanged"/>
         </StackPanel>
     </ScrollViewer>
 </UserControl>
