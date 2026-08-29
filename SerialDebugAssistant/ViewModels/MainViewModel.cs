@@ -45,7 +45,11 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         }
     }
 
-    partial void OnSelectedThemeChanged(string value) => ThemeService.Apply(value);
+    partial void OnSelectedThemeChanged(string value)
+    {
+        ThemeService.Apply(value);
+        StatusMessage = $"已应用主题：{value}";
+    }
 
     public bool ReceiveAsAscii { get => !ReceiveAsHex; set => ReceiveAsHex = !value; }
     public bool SendAsAscii { get => !SendAsHex; set => SendAsHex = !value; }
