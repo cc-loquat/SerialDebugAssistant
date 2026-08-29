@@ -129,7 +129,7 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
             }
 
             StageText = "固件已发送";
-            StatusDetail = "固件数据已全部写入串口，请按设备自己的协议确认升级结果。";
+            StatusDetail = "发送完成";
             TransferDetail = $"已发送 {firmware.Length / 1024d:F1} KB 固件数据";
             Progress = 100;
             ProgressText = "100%";
