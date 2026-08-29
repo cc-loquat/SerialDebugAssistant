@@ -14,6 +14,7 @@ public static class ThemeService
     private const string SystemTheme = "跟随系统";
     private const string LumiTheme = "Lumin";
     private const string LegacyLumiTheme = "Lumi";
+    private const string MellowTheme = "Mellow";
     private static readonly string SettingsPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "Comm Terminal", "settings.json");
@@ -25,7 +26,7 @@ public static class ThemeService
             if (File.Exists(SettingsPath))
             {
                 var settings = JsonSerializer.Deserialize<ThemeSettings>(File.ReadAllText(SettingsPath));
-                if (settings?.Theme is DarkTheme or LightTheme or LumiTheme or LegacyLumiTheme or SystemTheme)
+                if (settings?.Theme is DarkTheme or LightTheme or LumiTheme or LegacyLumiTheme or MellowTheme or SystemTheme)
                     return settings.Theme == LegacyLumiTheme ? LumiTheme : settings.Theme;
             }
         }
@@ -41,6 +42,7 @@ public static class ThemeService
     {
         var sourceName = selection is LumiTheme or LegacyLumiTheme
             ? "Themes/Colors.Lumi.xaml"
+            : selection == MellowTheme ? "Themes/Colors.Mellow.xaml"
             : (selection == LightTheme || (selection == SystemTheme && UsesLightSystemTheme())
                 ? "Themes/Colors.Light.xaml" : "Themes/Colors.xaml");
         var source = new Uri(sourceName, UriKind.Relative);
@@ -70,7 +72,8 @@ public static class ThemeService
         return uri.EndsWith("Themes/Colors.xaml", StringComparison.OrdinalIgnoreCase) ||
                uri.EndsWith("Themes/Colors.Light.xaml", StringComparison.OrdinalIgnoreCase) ||
                uri.EndsWith("Themes/Colors.Lumi.xaml", StringComparison.OrdinalIgnoreCase) ||
-               uri is "Colors.xaml" or "Colors.Light.xaml" or "Colors.Lumi.xaml";
+               uri.EndsWith("Themes/Colors.Mellow.xaml", StringComparison.OrdinalIgnoreCase) ||
+               uri is "Colors.xaml" or "Colors.Light.xaml" or "Colors.Lumi.xaml" or "Colors.Mellow.xaml";
     }
 
     private static bool UsesLightSystemTheme()

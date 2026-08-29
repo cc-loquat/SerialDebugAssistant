@@ -1,0 +1,36 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Colors.Light.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <SolidColorBrush x:Key="MainBgBrush" Color="#FFFFFBF0"/>
+    <SolidColorBrush x:Key="ActivityBarBgBrush" Color="#FFF6EACB"/>
+    <SolidColorBrush x:Key="SidebarBgBrush" Color="#FFFFF4D9"/>
+    <SolidColorBrush x:Key="TitleBarBgBrush" Color="#FFFFFCF4"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="#FFE6D3A8"/>
+    <SolidColorBrush x:Key="AccentBrush" Color="#FFD99A3D"/>
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#FFB97824"/>
+    <SolidColorBrush x:Key="SendButtonBrush" Color="#FF72A65A"/>
+    <SolidColorBrush x:Key="SendButtonHoverBrush" Color="#FF568642"/>
+    <SolidColorBrush x:Key="ForegroundBrush" Color="#FF493A28"/>
+    <SolidColorBrush x:Key="ForegroundInactiveBrush" Color="#FF907A5B"/>
+    <SolidColorBrush x:Key="RxTextBrush" Color="#FF4F9275"/>
+    <SolidColorBrush x:Key="TxTextBrush" Color="#FFC47A2C"/>
+    <SolidColorBrush x:Key="InputBgBrush" Color="#FFFFFEFA"/>
+    <SolidColorBrush x:Key="InputBorderNormalBrush" Color="#FFE1C894"/>
+    <SolidColorBrush x:Key="DropdownBgBrush" Color="#FFFFFEFA"/>
+    <SolidColorBrush x:Key="DropdownBorderBrush" Color="#FFE1C894"/>
+    <SolidColorBrush x:Key="DropdownHoverBrush" Color="#FFFFF0C9"/>
+    <SolidColorBrush x:Key="DropdownSelectedBrush" Color="#FFFFE2A3"/>
+    <SolidColorBrush x:Key="SelectionBrush" Color="#FFFFD98A"/>
+    <SolidColorBrush x:Key="ActivityIconBrush" Color="#FF9B7437"/>
+    <SolidColorBrush x:Key="ChartBackgroundBrush" Color="#FFFFFEFA"/>
+    <SolidColorBrush x:Key="ChartBorderBrush" Color="#FFE6D3A8"/>
+    <SolidColorBrush x:Key="ChartGridBrush" Color="#FFF1E3C4"/>
+    <SolidColorBrush x:Key="ChartTextBrush" Color="#FF907A5B"/>
+    <SolidColorBrush x:Key="ChartTargetBrush" Color="#FFC47A2C"/>
+    <SolidColorBrush x:Key="ChartActualBrush" Color="#FF4F9275"/>
+    <SolidColorBrush x:Key="ScrollbarTrackBrush" Color="#00F6EACB"/>
+    <SolidColorBrush x:Key="ScrollbarThumbBrush" Color="#FFD8B978"/>
+    <SolidColorBrush x:Key="ScrollbarThumbHoverBrush" Color="#FFC49A52"/>
+</ResourceDictionary>
