@@ -72,13 +72,19 @@
                     <StackPanel>
                         <TextBlock Text="协议提醒" Foreground="{DynamicResource ForegroundBrush}" FontWeight="SemiBold" FontSize="11"/>
                         <TextBlock Margin="0,5,0,0" Foreground="{DynamicResource ForegroundInactiveBrush}" FontSize="10" TextWrapping="Wrap">
+                            <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding SelectedProtocol}" Value="FWP3"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                             <Run Text="这不是通用标准，设备 Bootloader 必须按本格式接收："/><LineBreak/>
                             <Run Text="FWP3（自定义协议，所有整数均为小端序）："/><LineBreak/>
                             <Run Text="头：ASCII FWP3（4 字节）+ 版本号 uint32（4）+ 固件长度 uint32（4）+ 总 CRC32 uint32（4）。"/><LineBreak/>
                             <Run Text="包：序号 uint16（2，从 0 开始）+ 长度 uint16（2，1~256）+ 数据（最多 256）+ 包 CRC32 uint32（4）。"/><LineBreak/>
                             <Run Text="设备回复 ACK=06+序号(2)，NACK=15+期望序号(2)，CAN=18；工具等待 ACK 超时 3 秒，NACK/超时重发当前包，最多 5 次；取消发送 18 18。"/><LineBreak/>
                             <Run Text="设备校验总 CRC32 成功后才写入完成并复位。请按以上字节格式实现 Bootloader。"/><LineBreak/>
-                            <Run Text="YModem：C 握手 + 1K 分包 + CRC16。"/>
+                        </TextBlock>
+                        <TextBlock Margin="0,5,0,0" Foreground="{DynamicResource ForegroundInactiveBrush}" FontSize="10" TextWrapping="Wrap">
+                            <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding SelectedProtocol}" Value="YModem-1K"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                            <Run Text="YModem-1K：设备发送 C 后，工具发送第 0 包文件信息，再发送 1024 字节数据包。"/><LineBreak/>
+                            <Run Text="数据包：STX(02)+序号+序号反码+1024 字节数据+CRC16（高字节在前）；每包等待 ACK(06)。"/><LineBreak/>
+                            <Run Text="结束：发送 EOT(04)，按 NAK/再次 EOT/ACK 完成，再发送空结束包。"/>
                         </TextBlock>
                     </StackPanel>
                 </Border>
