@@ -16,7 +16,6 @@ public static class ThemeService
     private static readonly string SettingsPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "Comm Terminal", "settings.json");
-    private static readonly HashSet<object> AppliedThemeKeys = new();
 
     public static string LoadTheme()
     {
@@ -47,16 +46,9 @@ public static class ThemeService
         var dictionaries = Application.Current.Resources.MergedDictionaries;
 
         var themeDictionary = new ResourceDictionary { Source = source };
-        foreach (var key in AppliedThemeKeys.ToList()) Application.Current.Resources.Remove(key);
-        AppliedThemeKeys.Clear();
-        foreach (DictionaryEntry entry in themeDictionary)
-        {
-            Application.Current.Resources[entry.Key] = entry.Value;
-            AppliedThemeKeys.Add(entry.Key);
-        }
-
-        // Keep the compiled dictionaries for fallback keys; application-level entries above
-        // take precedence and DynamicResource receives a direct change notification.
+        var oldThemes = dictionaries.Where(IsThemeDictionary).ToList();
+        foreach (var oldTheme in oldThemes) dictionaries.Remove(oldTheme);
+        dictionaries.Add(themeDictionary);
 
         if (!save) return;
 
