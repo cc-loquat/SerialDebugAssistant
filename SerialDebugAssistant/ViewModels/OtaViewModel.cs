@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Buffers.Binary;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -223,11 +224,11 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
         if (magic.Length != 4) throw new InvalidOperationException("FWP3 标识长度异常。");
         var header = new byte[16];
         Buffer.BlockCopy(magic, 0, header, 0, 4);
-        BitConverter.GetBytes(version).CopyTo(header, 4);
-        BitConverter.GetBytes((uint)firmware.Length).CopyTo(header, 8);
-        BitConverter.GetBytes(CalculateCrc32(firmware)).CopyTo(header, 12);
+        BinaryPrimitives.WriteUInt32LittleEndian(header.AsSpan(4, 4), version);
+        BinaryPrimitives.WriteUInt32LittleEndian(header.AsSpan(8, 4), (uint)firmware.Length);
+        BinaryPrimitives.WriteUInt32LittleEndian(header.AsSpan(12, 4), CalculateCrc32(firmware));
+        AddLog($"实际写入串口 FWP3 头 ({header.Length} 字节): {ToHex(header)}");
         await _serial.SendAsync(header);
-        AddLog($"FWP3 头 [{ToHex(header)}]");
         const int chunkSize = 256;
         var total = (firmware.Length + chunkSize - 1) / chunkSize;
         for (var sequence = 0; sequence < total; sequence++)
