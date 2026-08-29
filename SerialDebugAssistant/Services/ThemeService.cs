@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
@@ -48,7 +49,7 @@ public static class ThemeService
         var themeDictionary = new ResourceDictionary { Source = source };
         foreach (var key in AppliedThemeKeys.ToList()) Application.Current.Resources.Remove(key);
         AppliedThemeKeys.Clear();
-        foreach (var entry in themeDictionary)
+        foreach (DictionaryEntry entry in themeDictionary)
         {
             Application.Current.Resources[entry.Key] = entry.Value;
             AppliedThemeKeys.Add(entry.Key);
