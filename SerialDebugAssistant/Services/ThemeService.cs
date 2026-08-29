@@ -12,7 +12,8 @@ public static class ThemeService
     private const string DarkTheme = "深色";
     private const string LightTheme = "浅色";
     private const string SystemTheme = "跟随系统";
-    private const string LumiTheme = "Lumi";
+    private const string LumiTheme = "Lumin";
+    private const string LegacyLumiTheme = "Lumi";
     private static readonly string SettingsPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "Comm Terminal", "settings.json");
@@ -24,8 +25,8 @@ public static class ThemeService
             if (File.Exists(SettingsPath))
             {
                 var settings = JsonSerializer.Deserialize<ThemeSettings>(File.ReadAllText(SettingsPath));
-                if (settings?.Theme is DarkTheme or LightTheme or LumiTheme or SystemTheme)
-                    return settings.Theme;
+                if (settings?.Theme is DarkTheme or LightTheme or LumiTheme or LegacyLumiTheme or SystemTheme)
+                    return settings.Theme == LegacyLumiTheme ? LumiTheme : settings.Theme;
             }
         }
         catch
@@ -38,7 +39,7 @@ public static class ThemeService
 
     public static void Apply(string selection, bool save = true)
     {
-        var sourceName = selection == LumiTheme
+        var sourceName = selection is LumiTheme or LegacyLumiTheme
             ? "Themes/Colors.Lumi.xaml"
             : (selection == LightTheme || (selection == SystemTheme && UsesLightSystemTheme())
                 ? "Themes/Colors.Light.xaml" : "Themes/Colors.xaml");

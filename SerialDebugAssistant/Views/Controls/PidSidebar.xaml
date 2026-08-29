@@ -4,7 +4,7 @@
              Background="{DynamicResource SidebarBgBrush}">
     <ScrollViewer VerticalScrollBarVisibility="Auto" Background="{DynamicResource SidebarBgBrush}"
                   Style="{DynamicResource DarkScrollViewerStyle}">
-        <StackPanel Margin="16,12">
+        <StackPanel Margin="16,12,28,12">
             <TextBlock Text="PID 参数" Style="{DynamicResource SectionHeaderStyle}"/>
 
             <TextBlock Text="Kp (比例)" Style="{DynamicResource LabelStyle}"/>
