@@ -206,10 +206,8 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
             lock (_fwp2ResponseBuffer)
             {
                 _fwp2ResponseBuffer.AddRange(e.Data);
-                if (_fwp2ResponseWaiter is { } waiter && _fwp2ResponseBuffer.Count >= 3)
+                if (_fwp2ResponseWaiter is { } waiter && TryTakeFwp3Response(out var response))
                 {
-                    var response = _fwp2ResponseBuffer.Take(3).ToArray();
-                    _fwp2ResponseBuffer.RemoveRange(0, 3);
                     waiter.TrySetResult(response);
                 }
             }
@@ -229,6 +227,16 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
         BinaryPrimitives.WriteUInt32LittleEndian(header.AsSpan(12, 4), CalculateCrc32(firmware));
         AddLog($"实际写入串口 FWP3 头 ({header.Length} 字节): {ToHex(header)}");
         await _serial.SendAsync(header);
+        AddLog("等待设备 READY [06 FF FF]...");
+        var readyDeadline = DateTime.UtcNow.AddSeconds(10);
+        while (true)
+        {
+            var remaining = readyDeadline - DateTime.UtcNow;
+            if (remaining <= TimeSpan.Zero) throw new TimeoutException("FWP3 等待设备 READY [06 FF FF] 超时。");
+            var ready = await WaitFwp2ResponseAsync(remaining, token);
+            AddLog($"响应 [{ToHex(ready)}]");
+            if (ready[0] == 0x06 && ready[1] == 0xFF && ready[2] == 0xFF) break;
+        }
         const int chunkSize = 256;
         var total = (firmware.Length + chunkSize - 1) / chunkSize;
         for (var sequence = 0; sequence < total; sequence++)
@@ -270,7 +278,11 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
 
     private async Task<byte[]> WaitFwp2ResponseAsync(TimeSpan timeout, CancellationToken token)
     {
-        lock (_fwp2ResponseBuffer) _fwp2ResponseWaiter = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
+        lock (_fwp2ResponseBuffer)
+        {
+            _fwp2ResponseWaiter = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
+            if (TryTakeFwp3Response(out var buffered)) _fwp2ResponseWaiter.TrySetResult(buffered);
+        }
         var waiter = _fwp2ResponseWaiter;
         using var registration = token.Register(() => waiter.TrySetCanceled(token));
         var completed = await Task.WhenAny(waiter.Task, Task.Delay(timeout, token));
@@ -278,6 +290,22 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
         var result = await waiter.Task;
         lock (_fwp2ResponseBuffer) _fwp2ResponseWaiter = null;
         return result;
+    }
+
+    private bool TryTakeFwp3Response(out byte[] response)
+    {
+        for (var index = 0; index <= _fwp2ResponseBuffer.Count - 3; index++)
+        {
+            var status = _fwp2ResponseBuffer[index];
+            if (status is 0x06 or 0x15)
+            {
+                response = _fwp2ResponseBuffer.Skip(index).Take(3).ToArray();
+                _fwp2ResponseBuffer.RemoveRange(0, index + 3);
+                return true;
+            }
+        }
+        response = Array.Empty<byte>();
+        return false;
     }
 
     private async Task SendYModemAsync(byte[] firmware, string infoName, CancellationToken token)
