@@ -18,7 +18,7 @@
 
         <StackPanel Grid.Row="0" Grid.ColumnSpan="3" Margin="0,0,0,16">
             <TextBlock Text="OTA 升级" FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource ForegroundBrush}"/>
-            <TextBlock Text="通过串口将 .bin 固件写入设备。升级会擦除当前 App。" Margin="0,5,0,0" Foreground="{DynamicResource ForegroundInactiveBrush}" FontSize="12"/>
+            <TextBlock Text="请先在串口参数页让设备进入升级模式并完成擦除，确认 Erase complete 后再发送 .bin 固件。" Margin="0,5,0,0" Foreground="{DynamicResource ForegroundInactiveBrush}" FontSize="12" TextWrapping="Wrap"/>
         </StackPanel>
 
         <Border Grid.Row="1" Grid.Column="0" Background="{DynamicResource SidebarBgBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="5" Padding="18">
