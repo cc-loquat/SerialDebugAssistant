@@ -215,8 +215,13 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
 
     private void OnSerialDataReceived(object? sender, SerialDebugAssistant.Services.DataReceivedEventArgs e)
     {
-        if (IsUpgrading && SelectedProtocol == "FWP4" && _fwp4ReadyWaiter is { } ready)
-            foreach (var value in e.Data) if (value == 0x06) ready.TrySetResult(value);
+        if (IsUpgrading && SelectedProtocol == "FWP4")
+        {
+            AddLog($"READY RX HEX: {ToHex(e.Data)}");
+            if (_fwp4ReadyWaiter is { } ready)
+                foreach (var value in e.Data)
+                    if (value == 0x06) { AddLog("FWP4 READY detected: 06"); ready.TrySetResult(value); break; }
+        }
         if (IsUpgrading && SelectedProtocol == "YModem-1K") OnYModemData(e.Data);
         if (IsUpgrading && SelectedProtocol == "FWP3")
         {
