@@ -223,7 +223,7 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
                     if (value == 0x06) { AddLog("FWP4 READY detected: 06"); ready.TrySetResult(value); break; }
         }
         if (IsUpgrading && SelectedProtocol == "YModem-1K") OnYModemData(e.Data);
-        if (IsUpgrading && SelectedProtocol == "FWP3")
+        if (IsUpgrading && (SelectedProtocol == "FWP3" || SelectedProtocol == "FWP4"))
         {
             lock (_fwp2ResponseBuffer)
             {
@@ -332,7 +332,7 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
             Buffer.BlockCopy(firmware, offset, packet, 6, count);
             BitConverter.GetBytes(CalculateCrc32(firmware.AsSpan(offset, count).ToArray())).CopyTo(packet, 6 + count);
             var packetCrc = CalculateCrc32(firmware.AsSpan(offset, count).ToArray());
-            AddLog($"包 {sequence}: 长度 {count}，CRC32 {packetCrc:X8}");
+            AddLog($"TX {protocolName} packet {sequence}, length {count}, CRC32 {packetCrc:X8}");
             var attempts = 0;
             while (attempts++ < 5)
             {
@@ -487,8 +487,14 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
 
     private void AddLog(string message, bool isError = false)
     {
-        UpgradeLogs.Add($"{DateTime.Now:HH:mm:ss}  {(isError ? "! " : string.Empty)}{message}");
-        while (UpgradeLogs.Count > 300) UpgradeLogs.RemoveAt(0);
+        void Add()
+        {
+            UpgradeLogs.Add($"{DateTime.Now:HH:mm:ss}  {(isError ? "! " : string.Empty)}{message}");
+            while (UpgradeLogs.Count > 300) UpgradeLogs.RemoveAt(0);
+        }
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher is null || dispatcher.CheckAccess()) Add();
+        else dispatcher.BeginInvoke(Add);
     }
 
     private static uint CalculateCrc32(byte[] data)
