@@ -240,6 +240,9 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
         var digest = SHA256.HashData(firmware);
         var der = ecdsa.SignHash(digest);
         var signature = ConvertDerSignatureToRaw(der);
+        SignatureStatus = $"签名已生成（64 字节原始 r||s）";
+        AddLog($"FWP4 SHA256: {ToHex(digest)}");
+        AddLog($"FWP4 签名 ({signature.Length} 字节 r||s): {ToHex(signature)}");
         var header = new byte[112];
         Encoding.ASCII.GetBytes("FWP4").CopyTo(header, 0);
         BinaryPrimitives.WriteUInt32LittleEndian(header.AsSpan(4), version);
@@ -256,10 +259,31 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
 
     private static byte[] ConvertDerSignatureToRaw(byte[] der)
     {
-        var offset = 2; if (der[1] > 0x80) offset += der[1] - 0x80;
-        if (der[offset++] != 0x02) throw new CryptographicException("无效 ECDSA 签名。"); var rLen = der[offset++]; var r = der[offset..(offset + rLen)]; offset += rLen;
-        if (der[offset++] != 0x02) throw new CryptographicException("无效 ECDSA 签名。"); var sLen = der[offset++]; var s = der[offset..(offset + sLen)];
-        var raw = new byte[64]; r[^32..].CopyTo(raw, 0); s[^32..].CopyTo(raw, 32); return raw;
+        if (der.Length == 64) return der;
+        var offset = 0;
+        if (der[offset++] != 0x30) throw new CryptographicException("无效 ECDSA 签名：缺少序列。");
+        ReadDerLength(der, ref offset);
+        if (der[offset++] != 0x02) throw new CryptographicException("无效 ECDSA 签名：缺少 r。");
+        var rLen = ReadDerLength(der, ref offset); var r = der.AsSpan(offset, rLen); offset += rLen;
+        if (der[offset++] != 0x02) throw new CryptographicException("无效 ECDSA 签名：缺少 s。");
+        var sLen = ReadDerLength(der, ref offset); var s = der.AsSpan(offset, sLen);
+        var raw = new byte[64]; CopyUnsignedBigEndian(r, raw.AsSpan(0, 32)); CopyUnsignedBigEndian(s, raw.AsSpan(32, 32)); return raw;
+    }
+
+    private static int ReadDerLength(byte[] data, ref int offset)
+    {
+        if (offset >= data.Length) throw new CryptographicException("无效 DER 长度。");
+        var value = data[offset++];
+        if ((value & 0x80) == 0) return value & 0x7F;
+        var count = value & 0x7F; if (count is 0 or > 4 || offset + count > data.Length) throw new CryptographicException("无效 DER 长度。");
+        var length = 0; for (var i = 0; i < count; i++) length = (length << 8) | data[offset++]; return length;
+    }
+
+    private static void CopyUnsignedBigEndian(ReadOnlySpan<byte> source, Span<byte> target)
+    {
+        while (source.Length > 0 && source[0] == 0) source = source[1..];
+        if (source.Length > target.Length) throw new CryptographicException("ECDSA 分量超过 32 字节。");
+        source.CopyTo(target[(target.Length - source.Length)..]);
     }
 
     private async Task SendFwp3Async(byte[] firmware, CancellationToken token, bool sendHeader = true, string protocolName = "FWP3")
