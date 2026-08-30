@@ -218,9 +218,13 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
         if (IsUpgrading && SelectedProtocol == "FWP4")
         {
             AddLog($"READY RX HEX: {ToHex(e.Data)}");
-            if (_fwp4ReadyWaiter is { } ready)
+            if (_fwp4ReadyWaiter is { } ready && !ready.Task.IsCompleted)
+            {
                 foreach (var value in e.Data)
                     if (value == 0x06) { AddLog("FWP4 READY detected: 06"); ready.TrySetResult(value); break; }
+                // READY 响应所在的接收事件不进入分包 ACK 缓冲，避免 06 与后续 06 00 00 串位。
+                if (ready.Task.IsCompleted) return;
+            }
         }
         if (IsUpgrading && SelectedProtocol == "YModem-1K") OnYModemData(e.Data);
         if (IsUpgrading && (SelectedProtocol == "FWP3" || SelectedProtocol == "FWP4"))
