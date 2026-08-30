@@ -35,6 +35,11 @@
                 <ComboBox ItemsSource="{Binding ProtocolOptions}" SelectedItem="{Binding SelectedProtocol}" Height="30" Style="{DynamicResource ParameterComboBoxStyle}"/>
                 <TextBlock Text="固件版本号（uint32）" Style="{DynamicResource LabelStyle}" Margin="0,8,0,2"/>
                 <TextBox Text="{Binding FirmwareVersion, UpdateSourceTrigger=PropertyChanged}" Height="30" Style="{DynamicResource ParameterTextBoxStyle}"/>
+                <TextBlock Text="目标槽位" Style="{DynamicResource LabelStyle}" Margin="0,8,0,2"/>
+                <ComboBox ItemsSource="{Binding TargetSlotOptions}" SelectedItem="{Binding TargetSlot}" Height="30" Style="{DynamicResource ParameterComboBoxStyle}"/>
+                <TextBlock Text="签名私钥（FWP4）" Style="{DynamicResource LabelStyle}" Margin="0,8,0,2"/>
+                <Button Content="选择 ota_private.pem" Height="30" Style="{DynamicResource SecondaryButtonStyle}" Command="{Binding ChooseSigningKeyCommand}"/>
+                <TextBlock Text="{Binding SignatureStatus}" Foreground="{DynamicResource ForegroundInactiveBrush}" FontSize="11" Margin="0,3,0,0"/>
                 <Button Content="选择 .bin 文件" Height="34" Margin="0,10,0,10" Style="{DynamicResource SecondaryButtonStyle}" Command="{Binding ChooseFirmwareCommand}"/>
                 <TextBlock Text="{Binding FirmwareName}" Foreground="{DynamicResource ForegroundBrush}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
                 <TextBlock Text="{Binding FirmwareSize}" Margin="0,5,0,0" Foreground="{DynamicResource ForegroundInactiveBrush}" FontSize="11"/>

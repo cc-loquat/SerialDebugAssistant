@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Buffers.Binary;
+using System.Security.Cryptography;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -24,6 +25,7 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
     private TaskCompletionSource<byte>? _ymodemSignal;
     private readonly List<byte> _fwp2ResponseBuffer = new();
     private TaskCompletionSource<byte[]>? _fwp2ResponseWaiter;
+    private TaskCompletionSource<byte>? _fwp4ReadyWaiter;
 
     [ObservableProperty] private bool _isSerialConnected;
     [ObservableProperty] private string _connectionStatus = "请先在“串口参数”页打开串口。";
@@ -32,6 +34,9 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
     [ObservableProperty] private string _firmwareSize = "请选择 .bin 文件";
     [ObservableProperty] private string _firmwareCrc32 = "CRC32: --";
     [ObservableProperty] private string _firmwareVersion = "1";
+    [ObservableProperty] private string _signatureKeyPath = string.Empty;
+    [ObservableProperty] private string _signatureStatus = "未选择签名私钥";
+    [ObservableProperty] private string _targetSlot = "自动（A/B）";
     [ObservableProperty] private string _stageText = "等待开始";
     [ObservableProperty] private string _statusDetail = "选择固件后，按开发板复位键并开始升级。";
     [ObservableProperty] private int _progress;
@@ -44,7 +49,8 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
     [ObservableProperty] private string _selectedProtocol = "FWP3";
 
     public ObservableCollection<string> UpgradeLogs { get; } = new();
-    public IReadOnlyList<string> ProtocolOptions { get; } = new[] { "FWP3", "YModem-1K" };
+    public IReadOnlyList<string> ProtocolOptions { get; } = new[] { "FWP3", "FWP4", "YModem-1K" };
+    public IReadOnlyList<string> TargetSlotOptions { get; } = new[] { "自动（A/B）", "A", "B" };
     public bool CanStartUpgrade => IsFirmwareValid && IsSerialConnected && !IsUpgrading;
     public bool CanStopUpgrade => IsUpgrading;
 
@@ -64,6 +70,13 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
     }
 
     partial void OnIsFirmwareValidChanged(bool value) => StartUpgradeCommand.NotifyCanExecuteChanged();
+
+    [RelayCommand]
+    private void ChooseSigningKey()
+    {
+        var dialog = new OpenFileDialog { Filter = "PEM 私钥 (*.pem)|*.pem|所有文件 (*.*)|*.*" };
+        if (dialog.ShowDialog() == true) { SignatureKeyPath = dialog.FileName; SignatureStatus = "已选择签名私钥"; }
+    }
 
     [RelayCommand]
     private void ChooseFirmware()
@@ -114,6 +127,8 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
             StageText = "正在传输固件";
             if (SelectedProtocol == "FWP3")
                 await SendFwp3Async(firmware, token);
+            else if (SelectedProtocol == "FWP4")
+                await SendFwp4Async(firmware, token);
             else if (SelectedProtocol == "YModem-1K")
                 await SendYModemAsync(firmware, infoName: Path.GetFileName(FirmwarePath), token);
             else if (SelectedProtocol == "自定义 FWUP")
@@ -200,6 +215,8 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
 
     private void OnSerialDataReceived(object? sender, SerialDebugAssistant.Services.DataReceivedEventArgs e)
     {
+        if (IsUpgrading && SelectedProtocol == "FWP4" && _fwp4ReadyWaiter is { } ready)
+            foreach (var value in e.Data) if (value == 0x06) ready.TrySetResult(value);
         if (IsUpgrading && SelectedProtocol == "YModem-1K") OnYModemData(e.Data);
         if (IsUpgrading && SelectedProtocol == "FWP3")
         {
@@ -214,9 +231,41 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
         }
     }
 
-    private async Task SendFwp3Async(byte[] firmware, CancellationToken token)
+    private async Task SendFwp4Async(byte[] firmware, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(SignatureKeyPath) || !File.Exists(SignatureKeyPath)) throw new InvalidOperationException("FWP4 必须先选择 ota_private.pem。");
+        if (!uint.TryParse(FirmwareVersion, out var version) || version == 0) throw new InvalidOperationException("版本号必须是大于 0 的 uint32。");
+        using var ecdsa = ECDsa.Create();
+        ecdsa.ImportFromPem(await File.ReadAllTextAsync(SignatureKeyPath, token));
+        var digest = SHA256.HashData(firmware);
+        var der = ecdsa.SignHash(digest);
+        var signature = ConvertDerSignatureToRaw(der);
+        var header = new byte[112];
+        Encoding.ASCII.GetBytes("FWP4").CopyTo(header, 0);
+        BinaryPrimitives.WriteUInt32LittleEndian(header.AsSpan(4), version);
+        BinaryPrimitives.WriteUInt32LittleEndian(header.AsSpan(8), (uint)firmware.Length);
+        BinaryPrimitives.WriteUInt32LittleEndian(header.AsSpan(12), CalculateCrc32(firmware));
+        digest.CopyTo(header, 16); signature.CopyTo(header, 48);
+        AddLog($"FWP4 头 ({header.Length} 字节): {ToHex(header)}");
+        await _serial.SendAsync(header);
+        _fwp4ReadyWaiter = new TaskCompletionSource<byte>(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var reg = token.Register(() => _fwp4ReadyWaiter.TrySetCanceled(token));
+        await _fwp4ReadyWaiter.Task.WaitAsync(TimeSpan.FromSeconds(10), token);
+        await SendFwp3Async(firmware, token, false, "FWP4");
+    }
+
+    private static byte[] ConvertDerSignatureToRaw(byte[] der)
+    {
+        var offset = 2; if (der[1] > 0x80) offset += der[1] - 0x80;
+        if (der[offset++] != 0x02) throw new CryptographicException("无效 ECDSA 签名。"); var rLen = der[offset++]; var r = der[offset..(offset + rLen)]; offset += rLen;
+        if (der[offset++] != 0x02) throw new CryptographicException("无效 ECDSA 签名。"); var sLen = der[offset++]; var s = der[offset..(offset + sLen)];
+        var raw = new byte[64]; r[^32..].CopyTo(raw, 0); s[^32..].CopyTo(raw, 32); return raw;
+    }
+
+    private async Task SendFwp3Async(byte[] firmware, CancellationToken token, bool sendHeader = true, string protocolName = "FWP3")
     {
         StageText = "正在传输固件";
+        if (!sendHeader) goto packets;
         if (!uint.TryParse(FirmwareVersion, out var version)) throw new InvalidOperationException("版本号必须是 0 到 4294967295 的整数。");
         var magic = Encoding.ASCII.GetBytes("FWP3");
         if (magic.Length != 4) throw new InvalidOperationException("FWP3 标识长度异常。");
@@ -237,6 +286,7 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
             AddLog($"响应 [{ToHex(ready)}]");
             if (ready[0] == 0x06 && ready[1] == 0xFF && ready[2] == 0xFF) break;
         }
+    packets:
         const int chunkSize = 256;
         var total = (firmware.Length + chunkSize - 1) / chunkSize;
         for (var sequence = 0; sequence < total; sequence++)
@@ -260,20 +310,20 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
                 await _serial.SendAsync(packet);
                 byte[] response;
                 try { response = await WaitFwp2ResponseAsync(TimeSpan.FromSeconds(3), token); }
-                catch (TimeoutException) { AddLog($"包 {sequence} 等待 ACK 超时，第 {attempts} 次重试", true); continue; }
-                AddLog($"响应 [{ToHex(response)}]，第 {attempts} 次发送");
+                catch (TimeoutException) { AddLog($"{protocolName} 包 {sequence} 等待 ACK 超时，第 {attempts} 次重试", true); continue; }
+                AddLog($"{protocolName} 响应 [{ToHex(response)}]，第 {attempts} 次发送");
                 var responseSequence = (ushort)(response[1] | (response[2] << 8));
                 if (response[0] == 0x06 && responseSequence == sequence) break;
                 if (response[0] == 0x15 && responseSequence == sequence) continue;
-                throw new InvalidOperationException($"FWP3 收到无效响应 0x{response[0]:X2}，序号 {responseSequence}。");
+                throw new InvalidOperationException($"{protocolName} 收到无效响应 0x{response[0]:X2}，序号 {responseSequence}。");
             }
-            if (attempts > 5) throw new TimeoutException($"FWP3 第 {sequence} 包重试 5 次仍未成功。");
+            if (attempts > 5) throw new TimeoutException($"{protocolName} 第 {sequence} 包重试 5 次仍未成功。");
             var sent = offset + count;
             Progress = (int)(sent * 100L / firmware.Length);
             ProgressText = $"{Progress}%";
             TransferDetail = $"已传输 {sent / 1024d:F1} / {firmware.Length / 1024d:F1} KB";
         }
-        AddLog($"FWP3 发送完成，共 {total} 包。");
+        AddLog($"{protocolName} 发送完成，共 {total} 包。");
     }
 
     private async Task<byte[]> WaitFwp2ResponseAsync(TimeSpan timeout, CancellationToken token)
