@@ -65,7 +65,11 @@ public class SerialService : ISerialService
     public async Task<int> SendAsync(byte[] data)
     {
         if (!IsOpen || _port is null) throw new InvalidOperationException("串口未打开");
-        await Task.Run(() => _port.Write(data, 0, data.Length));
+        await Task.Run(() =>
+        {
+            _port.Write(data, 0, data.Length);
+            _port.BaseStream.Flush();
+        });
         return data.Length;
     }
 
