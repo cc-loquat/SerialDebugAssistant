@@ -250,10 +250,10 @@ public partial class OtaViewModel : ViewModelBase, IDisposable
         BinaryPrimitives.WriteUInt32LittleEndian(header.AsSpan(12), CalculateCrc32(firmware));
         digest.CopyTo(header, 16); signature.CopyTo(header, 48);
         AddLog($"FWP4 头 ({header.Length} 字节): {ToHex(header)}");
-        var headerWritten = await _serial.SendAsync(header);
-        AddLog($"FWP4 头实际写入串口: {headerWritten}/{header.Length} 字节");
         _fwp4ReadyWaiter = new TaskCompletionSource<byte>(TaskCreationOptions.RunContinuationsAsynchronously);
         using var reg = token.Register(() => _fwp4ReadyWaiter.TrySetCanceled(token));
+        var headerWritten = await _serial.SendAsync(header);
+        AddLog($"FWP4 头实际写入串口: {headerWritten}/{header.Length} 字节");
         await _fwp4ReadyWaiter.Task.WaitAsync(TimeSpan.FromSeconds(10), token);
         await SendFwp3Async(firmware, token, false, "FWP4");
     }
